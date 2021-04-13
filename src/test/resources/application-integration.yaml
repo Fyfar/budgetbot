@@ -1,0 +1,15 @@
+monobank:
+  base-url: "http://localhost:8080"
+  scheduler-delay: 100000000
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: admin
+    password: admin
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    show-sql: true
+    hibernate:
+      ddl-auto: update
