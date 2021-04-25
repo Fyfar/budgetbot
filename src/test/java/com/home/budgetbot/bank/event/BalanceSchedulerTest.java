@@ -6,6 +6,10 @@ import com.home.budgetbot.bank.BalanceChangeEventListener;
 import com.home.budgetbot.bank.client.AccountDto;
 import com.home.budgetbot.bank.client.ClientInfoDto;
 import com.home.budgetbot.bank.repository.BalanceHistoryRepository;
+import com.home.budgetbot.bot.listener.TelegramBotUpdateListener;
+import com.home.budgetbot.bot.service.ConfigService;
+import com.home.budgetbot.bot.service.MessageService;
+import com.home.budgetbot.common.repository.DateTimeRepository;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +17,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -25,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @ActiveProfiles("integration")
+@MockBeans({@MockBean(TelegramBotUpdateListener.class)})
 class BalanceSchedulerTest {
     public static final String ACCOUNT_ID = "q2esff254";
 

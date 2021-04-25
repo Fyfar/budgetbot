@@ -3,6 +3,7 @@ package com.home.budgetbot.bot.service;
 import com.home.budgetbot.bank.event.BalanceScheduler;
 import com.home.budgetbot.bank.repository.BalanceHistoryRepository;
 import com.home.budgetbot.bank.service.BankService;
+import com.home.budgetbot.bot.listener.TelegramBotUpdateListener;
 import com.home.budgetbot.bot.service.model.BudgetChangeReportModel;
 import com.home.budgetbot.bot.service.model.BudgetConfigModel;
 import com.home.budgetbot.bot.service.model.ConfigModel;
@@ -26,9 +27,9 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-@ActiveProfiles("integration")
+@ActiveProfiles({"integration", "disableTelegramBot"})
 @MockBeans({@MockBean(BalanceScheduler.class), @MockBean(MessageService.class),
-        @MockBean(ConfigService.class), @MockBean(DateTimeRepository.class)})
+        @MockBean(ConfigService.class), @MockBean(DateTimeRepository.class), @MockBean(TelegramBotUpdateListener.class)})
 class BudgetServiceTest {
 
     public static final String ACCOUNT_ID = "sae1d1scc13fSS";
@@ -72,6 +73,25 @@ class BudgetServiceTest {
                 .withMonth(6)
                 .withDayOfMonth(8)
                 .withHour(10);
+    }
+
+    @Test
+    void secondChangeByDay() {
+        when(timeRepository.getNow()).thenReturn(date.minusDays(1));
+        bankService.saveToHistory(ACCOUNT_ID, 25000, 0);
+
+        when(timeRepository.getNow()).thenReturn(date);
+        bankService.saveToHistory(ACCOUNT_ID, 24900, 0);
+
+        date = date.plusMinutes(1);
+        when(timeRepository.getNow()).thenReturn(date);
+        bankService.saveToHistory(ACCOUNT_ID, 24800, 0);
+
+        date = date.plusMinutes(1);
+        when(timeRepository.getNow()).thenReturn(date);
+        BudgetChangeReportModel report = budgetService.getBudgetChangeReport(ACCOUNT_ID);
+
+        assertEquals("692", report.getDayBudgetState());
     }
 
     @Test

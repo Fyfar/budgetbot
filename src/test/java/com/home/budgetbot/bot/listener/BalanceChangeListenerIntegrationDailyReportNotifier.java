@@ -4,6 +4,7 @@ import com.home.budgetbot.bank.event.BalanceChangeEvent;
 import com.home.budgetbot.bank.event.BalanceScheduler;
 import com.home.budgetbot.bank.service.BankService;
 import com.home.budgetbot.bot.repository.entity.config.BudgetConfigEntity;
+import com.home.budgetbot.bot.service.BudgetService;
 import com.home.budgetbot.bot.service.model.MessageModel;
 import com.home.budgetbot.common.repository.DateTimeRepository;
 import com.home.budgetbot.bot.service.ConfigService;
@@ -32,9 +33,9 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-@ActiveProfiles("integration")
+@ActiveProfiles({"integration", "disableTelegramBot"})
 @MockBeans({@MockBean(BalanceScheduler.class), @MockBean(MessageService.class),
-        @MockBean(ConfigService.class), @MockBean(DateTimeRepository.class)})
+        @MockBean(ConfigService.class), @MockBean(DateTimeRepository.class), @MockBean(TelegramBotUpdateListener.class)})
 class BalanceChangeListenerIntegrationDailyReportNotifier {
 
     public static final String ACCOUNT_ID = "sae1d1scc13fSS";
@@ -100,7 +101,7 @@ class BalanceChangeListenerIntegrationDailyReportNotifier {
         MessageModel value = messageCaptor.getValue();
 
         assertEquals("Баланс изменился: -100\n" +
-                "Дневной бюджет: -36\n" +
+                "Дневной бюджет: -136\n" +
                 "Глобальное отклонение: -1000", value.getMessage());
 
         //Next dat
