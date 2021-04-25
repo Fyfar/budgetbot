@@ -79,14 +79,15 @@ public class MonobankService implements BankService {
             return Optional.empty();
         }
 
+        Integer firstDayBalance = repository.findLastBalanceBeforeTime(accountId, getDayStart(dateTime))
+                .map(BalanceHistoryEntity::getBalance)
+                .orElse(balanceHistory.get(0));
+
         if(balanceHistory.size() == 1) {
-            return repository.findLastBalanceBeforeTime(accountId, getDayStart(dateTime))
-                    .map(BalanceHistoryEntity::getBalance)
-                    .map(previousDayBalance -> previousDayBalance - balanceHistory.get(0))
-                    .or(() -> Optional.of(0));
+            return Optional.of(firstDayBalance - balanceHistory.get(0));
         }
 
-        int first = balanceHistory.get(0);
+        int first = firstDayBalance;
         int last = balanceHistory.get(balanceHistory.size() - 1);
 
         return Optional.of(first - last);
