@@ -59,7 +59,7 @@ public class MonobankService implements BankService {
         OffsetDateTime dayStart = getDayStart(dateTime);
         Optional<Integer> balance = repository.findLastBalanceBeforeTime(accountId, dayStart).map(BalanceHistoryEntity::getBalance);
 
-        if(balance.isPresent()) {
+        if (balance.isPresent()) {
             return balance;
         }
 
@@ -75,7 +75,7 @@ public class MonobankService implements BankService {
         List<Integer> balanceHistory = findBalanceHistoryByDay(accountId, dateTime)
                 .stream().map(BalanceHistoryModel::getBalance).collect(Collectors.toList());
 
-        if(balanceHistory.isEmpty()) {
+        if (balanceHistory.isEmpty()) {
             return Optional.empty();
         }
 
@@ -83,7 +83,7 @@ public class MonobankService implements BankService {
                 .map(BalanceHistoryEntity::getBalance)
                 .orElse(balanceHistory.get(0));
 
-        if(balanceHistory.size() == 1) {
+        if (balanceHistory.size() == 1) {
             return Optional.of(firstDayBalance - balanceHistory.get(0));
         }
 

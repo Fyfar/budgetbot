@@ -17,7 +17,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Component
 public class SetConfigTextUpdateHandler extends AbstractUpdateWrapperHandler {
 
-    private List<String> userList = new CopyOnWriteArrayList<>();
+    private final List<String> userList = new CopyOnWriteArrayList<>();
 
     @Autowired
     private ConfigService configService;
@@ -40,7 +40,7 @@ public class SetConfigTextUpdateHandler extends AbstractUpdateWrapperHandler {
                 configService.setConfig(configModel);
             } catch (JsonProcessingException exception) {
                 log.warn("Error while parse message", exception);
-                sendResponse("Error while parse message: "+exception.getMessage());
+                sendResponse("Error while parse message: " + exception.getMessage());
             }
         });
     }

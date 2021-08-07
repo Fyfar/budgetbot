@@ -1,19 +1,16 @@
 package com.home.budgetbot.bot.service;
 
-import com.home.budgetbot.bank.service.BalanceHistoryModel;
 import com.home.budgetbot.bank.service.BankService;
-import com.home.budgetbot.bot.service.model.*;
+import com.home.budgetbot.bot.service.model.BudgetChangeReportModel;
+import com.home.budgetbot.bot.service.model.ConfigModel;
+import com.home.budgetbot.bot.service.model.DailyBudgetReportModel;
 import com.home.budgetbot.common.repository.DateTimeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 public class BudgetService {
@@ -26,9 +23,6 @@ public class BudgetService {
 
     @Autowired
     private DateTimeRepository dateTimeRepository;
-
-    @Autowired
-    private ChartService chartService;
 
     public BudgetChangeReportModel getBudgetChangeReport(String accountId) {
         OffsetDateTime now = dateTimeRepository.getNow();
@@ -46,16 +40,11 @@ public class BudgetService {
                 .map(this::addSign)
                 .ifPresent(report::setGlobalDeviation);
 
-        getDayBudgetChart(accountId)
-                .ifPresent(report::setChartPath);
-
         return report;
     }
 
     public DailyBudgetReportModel getDailyBudgetReport(String accountId) {
         OffsetDateTime now = dateTimeRepository.getNow();
-
-        BudgetConfigModel budgetCongig = configService.getConfig().getBudget();
 
         DailyBudgetReportModel model = new DailyBudgetReportModel();
 
@@ -74,18 +63,6 @@ public class BudgetService {
                 .map(this::addSign)
                 .ifPresent(model::setPreviousDayState);
 
-        List<NumberStatisticModel> statisticList = IntStream.range(0, 30)
-                .boxed()
-                .map(now::minusDays)
-                .map(date -> {
-                    Integer budget = getDayBudget(accountId, date).orElse(0);
-                    return new NumberStatisticModel(budget, date);
-                })
-                .collect(Collectors.toList());
-
-        chartService.apply(statisticList, budgetCongig.getBudgetLimit())
-                .ifPresent(model::setChartPath);
-
         return model;
     }
 
@@ -95,48 +72,6 @@ public class BudgetService {
         } else {
             return "+" + integer;
         }
-    }
-
-    private Optional<String> getDayBudgetChart(String accountId) {
-        OffsetDateTime now = dateTimeRepository.getNow();
-
-        List<BalanceHistoryModel> balanceHistoryList = bankService.findBalanceHistoryByDay(accountId, now);
-        Optional<Integer> initialBalanceByDay = bankService.findInitialBalanceByDay(accountId, now);
-
-        if (initialBalanceByDay.isEmpty()) {
-            return Optional.empty();
-        }
-
-        Optional<Integer> dayBudget = getDayBudget(accountId, now);
-
-        if (dayBudget.isEmpty()) {
-            return Optional.empty();
-        }
-
-        int budget = dayBudget.get();
-        int balance = initialBalanceByDay.get();
-
-        int redLine = 0;
-
-        ConfigModel config = configService.getConfig();
-        int budgetLimit = config.getBudget().getBudgetLimit();
-        if (budget > budgetLimit) {
-            redLine = budget - budgetLimit;
-        }
-
-        List<NumberStatisticModel> statisticList = new ArrayList<>();
-        statisticList.add(new NumberStatisticModel(budget, now.withHour(0).withMinute(0).withSecond(0)));
-
-        for (BalanceHistoryModel history : balanceHistoryList) {
-            int difference = balance - history.getBalance();
-            budget = budget - difference;
-
-            statisticList.add(new NumberStatisticModel(budget, history.getTime()));
-
-            balance = history.getBalance();
-        }
-
-        return chartService.apply(statisticList, redLine);
     }
 
     private Optional<Integer> getGlobalDeviation(String accountId, OffsetDateTime day) {
@@ -156,10 +91,21 @@ public class BudgetService {
 
     private Optional<Integer> getDayBudget(String accountId, OffsetDateTime day) {
         ConfigModel config = configService.getConfig();
+
         Optional<Integer> initialBalanceByDay = bankService.findInitialBalanceByDay(accountId, day);
         int daysCountTillSalary = getDaysCountTillSalary(day, config.getBudget().getSalaryDay());
 
-        return initialBalanceByDay.map(initialBalance -> initialBalance / daysCountTillSalary);
+        return initialBalanceByDay
+                .map(initialBalance -> initialBalance / daysCountTillSalary)
+                .map(dailyLimit -> {
+                    int budgetLimit = config.getBudget().getBudgetLimit();
+
+                    if (dailyLimit > budgetLimit) {
+                        return budgetLimit;
+                    } else {
+                        return dailyLimit;
+                    }
+                });
     }
 
     private <F, S, T> Optional<T> both(Optional<F> left, Optional<S> right, BiFunction<F, S, T> mergeStrategy) {

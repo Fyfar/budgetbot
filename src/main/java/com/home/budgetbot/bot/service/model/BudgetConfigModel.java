@@ -12,10 +12,6 @@ import java.util.List;
 @Accessors(chain = true)
 public class BudgetConfigModel {
     private int salaryDay;
-    private int chartWidth;
-    private int chartHeight;
-    private int chartDefaultMaxValue;
-    private int chartDefaultMinValue;
     private int budgetLimit;
     private List<String> accountList = new ArrayList<>();
 }

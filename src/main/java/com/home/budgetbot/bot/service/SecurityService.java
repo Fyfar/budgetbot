@@ -21,7 +21,7 @@ public class SecurityService {
     public boolean isAuthorizedUser(User user) {
         SecurityConfigEntity securityConfig = configRepository.getSecurityConfig();
 
-        if(isAdminNotExist(securityConfig)) {
+        if (isAdminNotExist(securityConfig)) {
             log.warn("Admin not exist, save {} as admin", user.getUserName());
             addAuthorizedUser(user.getId());
             return true;

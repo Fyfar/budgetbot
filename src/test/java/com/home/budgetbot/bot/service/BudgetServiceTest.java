@@ -59,10 +59,6 @@ class BudgetServiceTest {
 
         budgetConfig = new BudgetConfigModel()
                 .setSalaryDay(5)
-                .setChartWidth(800)
-                .setChartHeight(600)
-                .setChartDefaultMaxValue(2000)
-                .setChartDefaultMinValue(200)
                 .setAccountList(Arrays.asList(ACCOUNT_ID))
                 .setBudgetLimit(900);
 
@@ -134,18 +130,21 @@ class BudgetServiceTest {
 
         date = date.plusDays(1);
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 9; i++) {
             date = date.plusMinutes(1);
             when(timeRepository.getNow()).thenReturn(date);
-            balance = balance - 100;
+            balance = balance - 99;
             bankService.saveToHistory(ACCOUNT_ID, balance, 0);
         }
 
+        date = date.plusDays(1);
+        when(timeRepository.getNow()).thenReturn(date);
+
         DailyBudgetReportModel report = budgetService.getDailyBudgetReport(ACCOUNT_ID);
 
-        assertEquals("1229", report.getDayBudget());
-        assertEquals("+8900", report.getGlobalDeviation());
-        assertEquals("+317", report.getPreviousDayState());
+        assertEquals("900", report.getDayBudget());
+        assertEquals("+8909", report.getGlobalDeviation());
+        assertEquals("+9", report.getPreviousDayState());
     }
 
     @Test

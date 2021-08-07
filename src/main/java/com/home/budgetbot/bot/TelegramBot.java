@@ -8,9 +8,10 @@ import java.util.function.Consumer;
 
 @Log4j2
 public class TelegramBot extends TelegramLongPollingBot {
-    private String botUsername;
-    private String botToken;
-    private Consumer<Update> updateConsumer = update -> {};
+    private final String botUsername;
+    private final String botToken;
+    private Consumer<Update> updateConsumer = update -> {
+    };
 
     public TelegramBot(String botUsername, String botToken) {
         this.botUsername = botUsername;

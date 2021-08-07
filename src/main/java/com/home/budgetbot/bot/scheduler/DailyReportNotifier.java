@@ -42,7 +42,6 @@ public class DailyReportNotifier {
                     report.getPreviousDayState(), report.getGlobalDeviation());
 
             MessageModel model = new MessageModel()
-                    .addImage(report.getChartPath())
                     .setMessage(message);
 
             messageService.notifyAll(model);

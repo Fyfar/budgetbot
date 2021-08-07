@@ -7,5 +7,6 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface BankHistoryMapper {
     BalanceHistoryModel map(BalanceHistoryEntity entity);
+
     BalanceHistoryEntity map(BalanceHistoryModel model);
 }

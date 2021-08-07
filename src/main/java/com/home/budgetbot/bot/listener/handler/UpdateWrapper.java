@@ -10,12 +10,12 @@ import java.util.Optional;
 
 @AllArgsConstructor
 public class UpdateWrapper {
-    private Update update;
+    private final Update update;
 
     public Optional<String> getText() {
         Optional<String> messageText = getMessage().map(Message::getText);
 
-        if(messageText.isPresent()) {
+        if (messageText.isPresent()) {
             return messageText;
         }
 
@@ -30,7 +30,7 @@ public class UpdateWrapper {
     public Optional<Integer> getMessageId() {
         Optional<Integer> messageIdFromMessage = getMessage().map(Message::getMessageId);
 
-        if(messageIdFromMessage.isPresent()) {
+        if (messageIdFromMessage.isPresent()) {
             return messageIdFromMessage;
         }
 

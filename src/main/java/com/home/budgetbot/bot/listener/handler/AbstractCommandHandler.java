@@ -4,8 +4,8 @@ import lombok.Getter;
 
 @Getter
 public abstract class AbstractCommandHandler extends AbstractUpdateWrapperHandler {
-    private String command;
-    private String description;
+    private final String command;
+    private final String description;
     protected boolean hideCommand = false;
 
     public AbstractCommandHandler(String command, String description) {

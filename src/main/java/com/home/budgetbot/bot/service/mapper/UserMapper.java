@@ -9,8 +9,11 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface UserMapper {
     UserModel map(UserEntity entity);
+
     UserEntity map(UserModel model);
+
     List<UserModel> mapEntityList(List<UserEntity> entity);
+
     List<UserEntity> mapModelList(List<UserModel> model);
 
 

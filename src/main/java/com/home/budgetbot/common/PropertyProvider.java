@@ -16,7 +16,7 @@ public class PropertyProvider {
     private ResourceLoader resourceLoader;
 
     public <T> T getPropertySupplier(String fileName, Class<T> target) {
-        String resourcePath = "file:./data/"+fileName+".json";
+        String resourcePath = "file:./data/" + fileName + ".json";
 
         File file;
         try {
@@ -25,7 +25,7 @@ public class PropertyProvider {
             throw new IllegalStateException("Error while get resource: " + resourcePath, e);
         }
 
-        if(!file.exists()) {
+        if (!file.exists()) {
             return initDefaultValue(file, target);
         }
 
@@ -42,14 +42,14 @@ public class PropertyProvider {
         try {
             instance = target.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
-            throw new IllegalStateException("Error while create new instance: "+target.getName());
+            throw new IllegalStateException("Error while create new instance: " + target.getName());
         }
 
         try {
             file.createNewFile();
             objectMapper.writeValue(file, instance);
         } catch (IOException e) {
-            throw new IllegalStateException("Error while create new file: "+file.getAbsolutePath());
+            throw new IllegalStateException("Error while create new file: " + file.getAbsolutePath());
         }
 
         return instance;

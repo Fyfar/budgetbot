@@ -55,10 +55,6 @@ public class ConfigService implements InitializingBean {
 
             BudgetConfigEntity config = new BudgetConfigEntity()
                     .setSalaryDay(5)
-                    .setChartWidth(800)
-                    .setChartHeight(600)
-                    .setChartDefaultMaxValue(2000)
-                    .setChartDefaultMinValue(200)
                     .setAccountList(Arrays.asList("remove_me_example_id"))
                     .setBudgetLimit(900);
 

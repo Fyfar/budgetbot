@@ -65,10 +65,6 @@ class BalanceChangeListenerIntegrationDailyReportNotifier {
     void setUp() {
         budgetConfig = new BudgetConfigModel()
                 .setSalaryDay(5)
-                .setChartWidth(800)
-                .setChartHeight(600)
-                .setChartDefaultMaxValue(2000)
-                .setChartDefaultMinValue(200)
                 .setAccountList(Arrays.asList(ACCOUNT_ID))
                 .setBudgetLimit(900);
 

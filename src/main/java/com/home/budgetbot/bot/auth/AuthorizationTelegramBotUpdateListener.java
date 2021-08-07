@@ -33,7 +33,7 @@ public class AuthorizationTelegramBotUpdateListener {
         log.info("Receive update with id: {} from user: {}", update.getUpdateId(), user.getUserName());
 
         if (securityService.isAuthorizedUser(user)) {
-            if(userService.isNotExist(user.getId())) {
+            if (userService.isNotExist(user.getId())) {
                 log.info("Save new user {} {} with username: {}", user.getFirstName(), user.getLastName(), user.getUserName());
                 userService.save(user.getId(), user.getUserName(), user.getFirstName(), user.getLastName(), chatId);
             }

@@ -7,5 +7,4 @@ public class DailyBudgetReportModel {
     private String dayBudget;
     private String globalDeviation;
     private String previousDayState;
-    private String chartPath;
 }

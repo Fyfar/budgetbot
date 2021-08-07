@@ -5,7 +5,9 @@ import lombok.experimental.Accessors;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
-import javax.persistence.*;
+import javax.persistence.CollectionTable;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
 import java.util.ArrayList;
 import java.util.Collection;
 

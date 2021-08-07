@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 @Service
 public class TelegramBotUpdateEventHolder implements Supplier<TelegramBotUpdateEvent> {
 
-    private ThreadLocal<TelegramBotUpdateEvent> threadLocal = new ThreadLocal<>();
+    private final ThreadLocal<TelegramBotUpdateEvent> threadLocal = new ThreadLocal<>();
 
     void set(TelegramBotUpdateEvent context) {
         threadLocal.set(context);

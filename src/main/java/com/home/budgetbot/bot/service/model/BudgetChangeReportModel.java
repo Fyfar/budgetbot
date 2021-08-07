@@ -6,5 +6,4 @@ import lombok.Data;
 public class BudgetChangeReportModel {
     private String dayBudgetState;
     private String globalDeviation;
-    private String chartPath;
 }

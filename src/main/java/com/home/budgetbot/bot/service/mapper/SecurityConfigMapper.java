@@ -7,5 +7,6 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface SecurityConfigMapper {
     SecurityConfigModel map(SecurityConfigEntity entity);
+
     SecurityConfigEntity map(SecurityConfigModel model);
 }

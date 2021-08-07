@@ -49,17 +49,16 @@ public class BalanceChangeListener {
 
         String message = String.format(MESSAGE_TEMPLATE, balanceChange, report.getDayBudgetState(), report.getGlobalDeviation());
         MessageModel model = new MessageModel()
-                .addImage(report.getChartPath())
                 .setMessage(message);
 
         messageService.notifyAll(model);
     }
 
     private String buildChangeString(Integer integer) {
-        if(integer > 0) {
-            return "-"+integer;
+        if (integer > 0) {
+            return "-" + integer;
         } else {
-            return "+"+Math.abs(integer);
+            return "+" + Math.abs(integer);
         }
     }
 }

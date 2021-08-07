@@ -12,7 +12,6 @@ import java.util.List;
 public class MessageModel {
     private String message;
     private List<String> chatList = new ArrayList<>();
-    private List<String> imageList = new ArrayList<>();
     private List<List<InlineKeyboardModel>> inlineKeyboard = new ArrayList<>();
 
     public MessageModel() {
@@ -21,10 +20,5 @@ public class MessageModel {
     public MessageModel(String chatId, String message) {
         this.chatList = Collections.singletonList(chatId);
         this.message = message;
-    }
-
-    public MessageModel addImage(String filePath) {
-        imageList.add(filePath);
-        return this;
     }
 }
