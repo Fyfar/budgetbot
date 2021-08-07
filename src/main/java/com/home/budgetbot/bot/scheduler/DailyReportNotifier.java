@@ -38,8 +38,11 @@ public class DailyReportNotifier {
 
             String accountSecretString = generateSecret(accountId);
 
-            String message = String.format(MESSAGE_TEMPLATE, accountSecretString, report.getDayBudget(),
-                    report.getPreviousDayState(), report.getGlobalDeviation());
+            String message = String.format(MESSAGE_TEMPLATE,
+                    accountSecretString,
+                    mapDayBudget(report.getDayBudget()),
+                    mapPreviousDayState(report.getPreviousDayState()),
+                    mapGlobalDeviation(report.getGlobalDeviation()));
 
             MessageModel model = new MessageModel()
                     .setMessage(message);
@@ -48,7 +51,71 @@ public class DailyReportNotifier {
         }
     }
 
+    private String mapGlobalDeviation(Integer globalDeviation) {
+        if(globalDeviation == null) {
+            return "🤷";
+        }
+
+        String smile = "🙂";
+
+        if(globalDeviation < -3000) {
+            smile = "🤬";
+        } else if(globalDeviation < -1000) {
+            smile = "😡";
+        } else if(globalDeviation < 0) {
+            smile = "😤";
+        } else if(globalDeviation == 0) {
+            smile = "😐";
+        } else if(globalDeviation > 5000) {
+            smile = "😈";
+        } else if(globalDeviation > 2000) {
+            smile = "🤑";
+        } else if(globalDeviation > 1500) {
+            smile = "😀";
+        } else if(globalDeviation > 1000) {
+            smile = "😲";
+        } else if(globalDeviation > 500) {
+            smile = "🙃";
+        }
+
+        return addSign(globalDeviation) + " " + smile;
+    }
+
+    private String mapPreviousDayState(Integer previousDayState) {
+        if(previousDayState == null) {
+            return "🤷";
+        }
+
+        if(previousDayState >= 0) {
+            return addSign(previousDayState) + " 👍";
+        } else {
+            return addSign(previousDayState) + " 👎";
+        }
+    }
+
+    private String mapDayBudget(Integer dayBudget) {
+        if(dayBudget == null) {
+            return "🤷";
+        }
+
+        int budgetLimit = configService.getConfig().getBudget().getBudgetLimit();
+
+        if (budgetLimit >= dayBudget) {
+            return dayBudget + " 👌";
+        } else {
+            return dayBudget + " 🤞";
+        }
+    }
+
     private String generateSecret(String accountId) {
         return accountId.substring(0, 5) + "*".repeat(accountId.length() - 4);
+    }
+
+    private String addSign(Integer integer) {
+        if (integer < 0) {
+            return String.valueOf(integer);
+        } else {
+            return "+" + integer;
+        }
     }
 }

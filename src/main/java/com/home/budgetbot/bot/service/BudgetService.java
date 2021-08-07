@@ -33,11 +33,9 @@ public class BudgetService {
         BudgetChangeReportModel report = new BudgetChangeReportModel();
 
         both(dayBudgetOptional, balanceDifferenceOptional, (dayBudget, balanceDifference) -> dayBudget - balanceDifference)
-                .map(String::valueOf)
                 .ifPresent(report::setDayBudgetState);
 
         getGlobalDeviation(accountId, now)
-                .map(this::addSign)
                 .ifPresent(report::setGlobalDeviation);
 
         return report;
@@ -49,29 +47,18 @@ public class BudgetService {
         DailyBudgetReportModel model = new DailyBudgetReportModel();
 
         getDayBudget(accountId, now)
-                .map(String::valueOf)
                 .ifPresent(model::setDayBudget);
 
         getGlobalDeviation(accountId, now)
-                .map(this::addSign)
                 .ifPresent(model::setGlobalDeviation);
 
         Optional<Integer> previousDayBudget = getDayBudget(accountId, now.minusDays(1));
         Optional<Integer> balanceDifference = bankService.findBalanceDifferenceByDay(accountId, now.minusDays(1));
 
         both(previousDayBudget, balanceDifference, (left, right) -> left - right)
-                .map(this::addSign)
                 .ifPresent(model::setPreviousDayState);
 
         return model;
-    }
-
-    private String addSign(Integer integer) {
-        if (integer < 0) {
-            return String.valueOf(integer);
-        } else {
-            return "+" + integer;
-        }
     }
 
     private Optional<Integer> getGlobalDeviation(String accountId, OffsetDateTime day) {

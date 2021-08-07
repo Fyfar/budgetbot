@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class DailyBudgetReportModel {
-    private String dayBudget;
-    private String globalDeviation;
-    private String previousDayState;
+    private Integer dayBudget;
+    private Integer globalDeviation;
+    private Integer previousDayState;
 }

@@ -87,7 +87,7 @@ class BudgetServiceTest {
         when(timeRepository.getNow()).thenReturn(date);
         BudgetChangeReportModel report = budgetService.getBudgetChangeReport(ACCOUNT_ID);
 
-        assertEquals("692", report.getDayBudgetState());
+        assertEquals(692, report.getDayBudgetState());
     }
 
     @Test
@@ -112,9 +112,9 @@ class BudgetServiceTest {
 
         DailyBudgetReportModel report = budgetService.getDailyBudgetReport(ACCOUNT_ID);
 
-        assertEquals("859", report.getDayBudget());
-        assertEquals("-1100", report.getGlobalDeviation());
-        assertEquals("-40", report.getPreviousDayState());
+        assertEquals(859, report.getDayBudget());
+        assertEquals(-1100, report.getGlobalDeviation());
+        assertEquals(-40, report.getPreviousDayState());
     }
 
     @Test
@@ -142,9 +142,9 @@ class BudgetServiceTest {
 
         DailyBudgetReportModel report = budgetService.getDailyBudgetReport(ACCOUNT_ID);
 
-        assertEquals("900", report.getDayBudget());
-        assertEquals("+8909", report.getGlobalDeviation());
-        assertEquals("+9", report.getPreviousDayState());
+        assertEquals(900, report.getDayBudget());
+        assertEquals(8909, report.getGlobalDeviation());
+        assertEquals(9, report.getPreviousDayState());
     }
 
     @Test
@@ -157,13 +157,13 @@ class BudgetServiceTest {
         when(timeRepository.getNow()).thenReturn(date);
         DailyBudgetReportModel dailyBudgetReport = budgetService.getDailyBudgetReport(ACCOUNT_ID);
 
-        assertEquals("555", dailyBudgetReport.getDayBudget());
+        assertEquals(555, dailyBudgetReport.getDayBudget());
 
         when(timeRepository.getNow()).thenReturn(date);
         bankService.saveToHistory(ACCOUNT_ID, balance - 21, 0);
 
         BudgetChangeReportModel budgetChangeReport = budgetService.getBudgetChangeReport(ACCOUNT_ID);
 
-        assertEquals("534", budgetChangeReport.getDayBudgetState());
+        assertEquals(534, budgetChangeReport.getDayBudgetState());
     }
 }

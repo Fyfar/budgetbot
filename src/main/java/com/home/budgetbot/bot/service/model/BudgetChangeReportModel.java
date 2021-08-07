@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class BudgetChangeReportModel {
-    private String dayBudgetState;
-    private String globalDeviation;
+    private Integer dayBudgetState;
+    private Integer globalDeviation;
 }

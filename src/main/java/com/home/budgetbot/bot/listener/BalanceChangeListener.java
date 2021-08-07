@@ -47,11 +47,23 @@ public class BalanceChangeListener {
 
         BudgetChangeReportModel report = budgetService.getBudgetChangeReport(event.getAccountId());
 
-        String message = String.format(MESSAGE_TEMPLATE, balanceChange, report.getDayBudgetState(), report.getGlobalDeviation());
+        String message = String.format(MESSAGE_TEMPLATE,
+                balanceChange,
+                mapDayBudgetState(report.getDayBudgetState()),
+                addSign(report.getGlobalDeviation()));
+
         MessageModel model = new MessageModel()
                 .setMessage(message);
 
         messageService.notifyAll(model);
+    }
+
+    private String mapDayBudgetState(Integer dayBudgetState) {
+        if(dayBudgetState < 0) {
+            return dayBudgetState + " 🤨";
+        } else  {
+            return String.valueOf(dayBudgetState);
+        }
     }
 
     private String buildChangeString(Integer integer) {
@@ -59,6 +71,14 @@ public class BalanceChangeListener {
             return "-" + integer;
         } else {
             return "+" + Math.abs(integer);
+        }
+    }
+
+    private String addSign(Integer integer) {
+        if (integer < 0) {
+            return String.valueOf(integer);
+        } else {
+            return "+" + integer;
         }
     }
 }
