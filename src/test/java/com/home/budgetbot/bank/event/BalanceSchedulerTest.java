@@ -1,16 +1,18 @@
 package com.home.budgetbot.bank.event;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.home.budgetbot.bank.BalanceChangeEventListener;
-import com.home.budgetbot.bank.client.AccountDto;
-import com.home.budgetbot.bank.client.ClientInfoDto;
+import com.home.budgetbot.bank.model.BalanceChangedEvent;
+import com.home.budgetbot.bank.model.BalanceChangedWebhookInput;
+import com.home.budgetbot.bank.model.BalanceChangedWebhookInput.AccountData;
 import com.home.budgetbot.bank.repository.BalanceHistoryRepository;
+import com.home.budgetbot.bank.service.BalanceService;
 import com.home.budgetbot.bot.listener.TelegramBotUpdateListener;
-import com.home.budgetbot.bot.service.ConfigService;
-import com.home.budgetbot.bot.service.MessageService;
-import com.home.budgetbot.common.repository.DateTimeRepository;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,10 +24,9 @@ import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.math.BigInteger;
+import java.time.Instant;
 import java.util.List;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 
 @ExtendWith(SpringExtension.class)
@@ -36,9 +37,9 @@ class BalanceSchedulerTest {
     public static final String ACCOUNT_ID = "q2esff254";
 
     @Autowired
-    private BalanceScheduler balanceScheduler;
+    private BalanceService balanceService;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
     private BalanceHistoryRepository historyRepository;
@@ -58,29 +59,11 @@ class BalanceSchedulerTest {
         eventListener.clean();
     }
 
-    @SneakyThrows
-    private void mockClientInfo(String accountId, int balance) {
-        AccountDto accountDto = new AccountDto()
-                .setId(accountId)
-                .setBalance(balance);
-
-        ClientInfoDto clientInfoDto = new ClientInfoDto()
-                .setAccounts(List.of(accountDto));
-
-        String response = objectMapper.writeValueAsString(clientInfoDto);
-
-        stubFor(get(urlEqualTo("/personal/client-info"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", "application/json")
-                        .withBody(response)));
-    }
-
     @Test
     void shouldFireEventWithNullOldValue() {
-        mockClientInfo(ACCOUNT_ID, 10023);
-
-        balanceScheduler.checkBalanceChange();
+        BalanceChangedEvent balance = new BalanceChangedEvent(Instant.now(), "descr", BigInteger.ONE, BigInteger.valueOf(10022));
+        BalanceChangedWebhookInput input = new BalanceChangedWebhookInput("type", new AccountData(ACCOUNT_ID), balance);
+        balanceService.balanceChanged(input);
 
         List<BalanceChangeEvent> eventList = eventListener.getEventList();
 
@@ -92,37 +75,15 @@ class BalanceSchedulerTest {
 
     @Test
     void shouldNotFireEventWhenNoChanges() {
-        mockClientInfo(ACCOUNT_ID, 10023);
-
-        balanceScheduler.checkBalanceChange();
-
-        mockClientInfo(ACCOUNT_ID, 10023);
-
-        balanceScheduler.checkBalanceChange();
+        BalanceChangedEvent balance = new BalanceChangedEvent(Instant.now(), "descr", BigInteger.ZERO, BigInteger.valueOf(10023));
+        BalanceChangedWebhookInput input = new BalanceChangedWebhookInput("type", new AccountData(ACCOUNT_ID), balance);
+        balanceService.balanceChanged(input);
 
         List<BalanceChangeEvent> eventList = eventListener.getEventList();
 
         assertEquals(1, eventList.size());
         assertEquals(100, eventList.get(0).getNewBalance());
         assertNull(eventList.get(0).getOldBalance());
-        assertNotNull(eventList.get(0).getAccountId());
-    }
-
-    @Test
-    void shouldHaveOldValue() {
-        mockClientInfo(ACCOUNT_ID, 10023);
-
-        balanceScheduler.checkBalanceChange();
-
-        mockClientInfo(ACCOUNT_ID, 20023);
-
-        balanceScheduler.checkBalanceChange();
-
-        List<BalanceChangeEvent> eventList = eventListener.getEventList();
-
-        assertEquals(2, eventList.size());
-        assertEquals(200, eventList.get(1).getNewBalance());
-        assertEquals(100, eventList.get(1).getOldBalance());
         assertNotNull(eventList.get(0).getAccountId());
     }
 }

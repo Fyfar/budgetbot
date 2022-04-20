@@ -1,10 +1,7 @@
 package com.home.budgetbot.bank.repository;
 
-import com.home.budgetbot.bank.event.BalanceScheduler;
+import com.home.budgetbot.bank.service.BalanceServiceImpl;
 import com.home.budgetbot.bot.listener.TelegramBotUpdateListener;
-import com.home.budgetbot.bot.service.ConfigService;
-import com.home.budgetbot.bot.service.MessageService;
-import com.home.budgetbot.common.repository.DateTimeRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @ActiveProfiles("integration")
-@MockBeans({@MockBean(BalanceScheduler.class), @MockBean(TelegramBotUpdateListener.class)})
+@MockBeans({@MockBean(BalanceServiceImpl.class), @MockBean(TelegramBotUpdateListener.class)})
 class BalanceHistoryRepositoryIntegrationDailyReportNotifier {
 
     public static final String ACCOUNT_ID = "TEST";

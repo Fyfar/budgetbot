@@ -1,6 +1,5 @@
 package com.home.budgetbot.bank.service;
 
-import com.home.budgetbot.bank.event.BalanceScheduler;
 import com.home.budgetbot.bank.repository.BalanceHistoryEntity;
 import com.home.budgetbot.bank.repository.BalanceHistoryRepository;
 import com.home.budgetbot.bot.listener.TelegramBotUpdateListener;
@@ -22,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @ActiveProfiles("integration")
-@MockBeans({@MockBean(BalanceScheduler.class), @MockBean(TelegramBotUpdateListener.class)})
+@MockBeans({@MockBean(BalanceServiceImpl.class), @MockBean(TelegramBotUpdateListener.class)})
 class MonobankServiceDailyReportNotifier {
     public static final String ACCOUNT_ID = "TEST";
 

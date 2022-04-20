@@ -1,17 +1,14 @@
 package com.home.budgetbot.bot.listener;
 
 import com.home.budgetbot.bank.event.BalanceChangeEvent;
-import com.home.budgetbot.bank.event.BalanceScheduler;
+import com.home.budgetbot.bank.service.BalanceServiceImpl;
 import com.home.budgetbot.bank.service.BankService;
-import com.home.budgetbot.bot.repository.entity.config.BudgetConfigEntity;
-import com.home.budgetbot.bot.service.BudgetService;
 import com.home.budgetbot.bot.service.model.MessageModel;
 import com.home.budgetbot.common.repository.DateTimeRepository;
 import com.home.budgetbot.bot.service.ConfigService;
 import com.home.budgetbot.bot.service.MessageService;
 import com.home.budgetbot.bot.service.model.BudgetConfigModel;
 import com.home.budgetbot.bot.service.model.ConfigModel;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,7 +23,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.OffsetDateTime;
 import java.util.Arrays;
-import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -34,7 +30,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @ActiveProfiles({"integration", "disableTelegramBot"})
-@MockBeans({@MockBean(BalanceScheduler.class), @MockBean(MessageService.class),
+@MockBeans({@MockBean(BalanceServiceImpl.class), @MockBean(MessageService.class),
         @MockBean(ConfigService.class), @MockBean(DateTimeRepository.class), @MockBean(TelegramBotUpdateListener.class)})
 class BalanceChangeListenerIntegrationDailyReportNotifier {
 

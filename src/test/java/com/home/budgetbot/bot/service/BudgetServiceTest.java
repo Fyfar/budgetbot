@@ -1,6 +1,6 @@
 package com.home.budgetbot.bot.service;
 
-import com.home.budgetbot.bank.event.BalanceScheduler;
+import com.home.budgetbot.bank.service.BalanceServiceImpl;
 import com.home.budgetbot.bank.repository.BalanceHistoryRepository;
 import com.home.budgetbot.bank.service.BankService;
 import com.home.budgetbot.bot.listener.TelegramBotUpdateListener;
@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @ActiveProfiles({"integration", "disableTelegramBot"})
-@MockBeans({@MockBean(BalanceScheduler.class), @MockBean(MessageService.class),
+@MockBeans({@MockBean(BalanceServiceImpl.class), @MockBean(MessageService.class),
         @MockBean(ConfigService.class), @MockBean(DateTimeRepository.class), @MockBean(TelegramBotUpdateListener.class)})
 class BudgetServiceTest {
 

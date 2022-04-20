@@ -1,6 +1,7 @@
 package com.home.budgetbot.bank.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.home.budgetbot.bank.client.MonobankClient;
 import com.home.budgetbot.common.PropertyProvider;
 import feign.Feign;
@@ -22,7 +23,7 @@ public class BankConfiguration {
 
     @Bean
     public ObjectMapper objectMapper() {
-        return new ObjectMapper();
+        return new ObjectMapper().registerModule(new JavaTimeModule());
     }
 
     @Bean
