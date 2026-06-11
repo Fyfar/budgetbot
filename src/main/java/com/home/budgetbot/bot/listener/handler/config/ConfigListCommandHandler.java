@@ -5,19 +5,19 @@ import com.home.budgetbot.bot.listener.handler.AbstractCommandHandler;
 import com.home.budgetbot.bot.listener.handler.UpdateWrapper;
 import com.home.budgetbot.bot.service.ConfigService;
 import com.home.budgetbot.bot.service.model.ConfigModel;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.SneakyThrows;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
+@Singleton
 public class ConfigListCommandHandler extends AbstractCommandHandler {
     public static final String COMMAND = "/config";
 
-    @Autowired
-    private ConfigService configService;
+    @Inject
+    ConfigService configService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @Inject
+    ObjectMapper objectMapper;
 
     public ConfigListCommandHandler() {
         super(COMMAND, "Настройки в JSON формате");

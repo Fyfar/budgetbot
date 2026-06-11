@@ -4,9 +4,9 @@ import com.home.budgetbot.bot.repository.ConfigRepository;
 import com.home.budgetbot.bot.repository.UserRepository;
 import com.home.budgetbot.bot.repository.entity.UserEntity;
 import com.home.budgetbot.bot.service.model.MessageModel;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -16,18 +16,18 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Log4j2
-@Service
+@Slf4j
+@Singleton
 public class MessageService {
 
-    @Autowired
-    private TelegramLongPollingBot telegramBot;
+    @Inject
+    TelegramLongPollingBot telegramBot;
 
-    @Autowired
-    private UserRepository userRepository;
+    @Inject
+    UserRepository userRepository;
 
-    @Autowired
-    private ConfigRepository configRepository;
+    @Inject
+    ConfigRepository configRepository;
 
     public void notifyAll(MessageModel messageModel) {
         Collection<Integer> authorizedUserList = configRepository.getSecurityConfig().getAuthorizedUserList();

@@ -5,15 +5,15 @@ import com.home.budgetbot.bot.listener.TelegramBotUpdateEventHolder;
 import com.home.budgetbot.bot.service.MessageService;
 import com.home.budgetbot.bot.service.model.InlineKeyboardModel;
 import com.home.budgetbot.bot.service.model.MessageModel;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.inject.Inject;
 
 import java.util.List;
 
 public abstract class AbstractResponseHandler implements UpdateHandler {
-    @Autowired
+    @Inject
     protected MessageService messageService;
 
-    @Autowired
+    @Inject
     protected TelegramBotUpdateEventHolder eventHolder;
 
     private void sendResponse(String message, List<List<InlineKeyboardModel>> inlineKeyboard) {

@@ -1,29 +1,22 @@
 package com.home.budgetbot.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ResourceLoader;
-import org.springframework.stereotype.Component;
+import jakarta.inject.Singleton;
 
 import java.io.File;
 import java.io.IOException;
 
-@Component
+@Singleton
 public class PropertyProvider {
-    @Autowired
-    private ObjectMapper objectMapper;
-    @Autowired
-    private ResourceLoader resourceLoader;
+
+    private final ObjectMapper objectMapper;
+
+    public PropertyProvider(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     public <T> T getPropertySupplier(String fileName, Class<T> target) {
-        String resourcePath = "file:./data/" + fileName + ".json";
-
-        File file;
-        try {
-            file = resourceLoader.getResource(resourcePath).getFile();
-        } catch (Exception e) {
-            throw new IllegalStateException("Error while get resource: " + resourcePath, e);
-        }
+        File file = new File("./data/" + fileName + ".json");
 
         if (!file.exists()) {
             return initDefaultValue(file, target);
@@ -32,7 +25,7 @@ public class PropertyProvider {
         try {
             return objectMapper.readValue(file, target);
         } catch (IOException e) {
-            throw new IllegalStateException("Error while read value: " + resourcePath, e);
+            throw new IllegalStateException("Error while read value: " + file.getPath(), e);
         }
     }
 
@@ -46,6 +39,10 @@ public class PropertyProvider {
         }
 
         try {
+            File parent = file.getParentFile();
+            if (parent != null) {
+                parent.mkdirs();
+            }
             file.createNewFile();
             objectMapper.writeValue(file, instance);
         } catch (IOException e) {

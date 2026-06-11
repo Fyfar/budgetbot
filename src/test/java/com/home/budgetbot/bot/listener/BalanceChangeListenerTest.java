@@ -1,57 +1,65 @@
 package com.home.budgetbot.bot.listener;
 
 import com.home.budgetbot.bank.event.BalanceChangeEvent;
-import com.home.budgetbot.bank.service.BalanceServiceImpl;
 import com.home.budgetbot.bank.service.BankService;
-import com.home.budgetbot.bot.service.model.MessageModel;
-import com.home.budgetbot.common.repository.DateTimeRepository;
 import com.home.budgetbot.bot.service.ConfigService;
 import com.home.budgetbot.bot.service.MessageService;
 import com.home.budgetbot.bot.service.model.BudgetConfigModel;
 import com.home.budgetbot.bot.service.model.ConfigModel;
+import com.home.budgetbot.bot.service.model.MessageModel;
+import com.home.budgetbot.common.repository.DateTimeRepository;
+import io.micronaut.test.annotation.MockBean;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
-@ActiveProfiles({"integration", "disableTelegramBot"})
-@MockBeans({@MockBean(BalanceServiceImpl.class), @MockBean(MessageService.class),
-        @MockBean(ConfigService.class), @MockBean(DateTimeRepository.class), @MockBean(TelegramBotUpdateListener.class)})
-class BalanceChangeListenerIntegrationDailyReportNotifier {
+@MicronautTest(environments = {"integration", "disableTelegramBot"})
+class BalanceChangeListenerTest {
 
     public static final String ACCOUNT_ID = "sae1d1scc13fSS";
-    @Autowired
-    private ConfigService configService;
 
-    @Autowired
-    private BalanceChangeListener balanceChangeListener;
+    @Inject
+    ConfigService configService;
 
-    @Autowired
-    private BankService bankService;
+    @Inject
+    BalanceChangeListener balanceChangeListener;
 
-    @Autowired
-    private DateTimeRepository timeRepository;
+    @Inject
+    BankService bankService;
 
-    @Autowired
-    private MessageService messageService;
+    @Inject
+    DateTimeRepository timeRepository;
 
-    @Captor
-    private ArgumentCaptor<MessageModel> messageCaptor;
+    @Inject
+    MessageService messageService;
+
+    @MockBean(ConfigService.class)
+    ConfigService configServiceMock() {
+        return mock(ConfigService.class);
+    }
+
+    @MockBean(DateTimeRepository.class)
+    DateTimeRepository timeRepositoryMock() {
+        return mock(DateTimeRepository.class);
+    }
+
+    @MockBean(MessageService.class)
+    MessageService messageServiceMock() {
+        return mock(MessageService.class);
+    }
+
+    private final ArgumentCaptor<MessageModel> messageCaptor = ArgumentCaptor.forClass(MessageModel.class);
 
     private BudgetConfigModel budgetConfig;
 
@@ -93,10 +101,10 @@ class BalanceChangeListenerIntegrationDailyReportNotifier {
         MessageModel value = messageCaptor.getValue();
 
         assertEquals("Баланс изменился: -100\n" +
-                "Дневной бюджет: -136\n" +
+                "Дневной бюджет: -136 🤨\n" +
                 "Глобальное отклонение: -1000", value.getMessage());
 
-        //Next dat
+        //Next day
 
         date = date.plusDays(1);
 

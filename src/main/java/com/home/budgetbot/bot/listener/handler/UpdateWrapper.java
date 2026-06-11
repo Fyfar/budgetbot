@@ -3,6 +3,7 @@ package com.home.budgetbot.bot.listener.handler;
 import lombok.AllArgsConstructor;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Contact;
+import org.telegram.telegrambots.meta.api.objects.MaybeInaccessibleMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
@@ -36,7 +37,7 @@ public class UpdateWrapper {
 
         return getCallback()
                 .map(CallbackQuery::getMessage)
-                .map(Message::getMessageId);
+                .map(MaybeInaccessibleMessage::getMessageId);
     }
 
     public Integer getMessageIdForce() {

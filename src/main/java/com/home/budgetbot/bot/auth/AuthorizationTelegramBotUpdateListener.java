@@ -3,27 +3,27 @@ package com.home.budgetbot.bot.auth;
 import com.home.budgetbot.bot.listener.TelegramBotUpdateEvent;
 import com.home.budgetbot.bot.service.SecurityService;
 import com.home.budgetbot.bot.service.UserService;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
+import io.micronaut.context.event.ApplicationEventPublisher;
+import io.micronaut.runtime.event.annotation.EventListener;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.extern.slf4j.Slf4j;
 import org.telegram.abilitybots.api.util.AbilityUtils;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
-@Log4j2
-@Component
+@Slf4j
+@Singleton
 public class AuthorizationTelegramBotUpdateListener {
 
-    @Autowired
-    private ApplicationEventPublisher eventPublisher;
+    @Inject
+    ApplicationEventPublisher<TelegramBotUpdateEvent> eventPublisher;
 
-    @Autowired
-    private SecurityService securityService;
+    @Inject
+    SecurityService securityService;
 
-    @Autowired
-    private UserService userService;
+    @Inject
+    UserService userService;
 
     @EventListener
     public void onTelegramBotUpdate(Update update) {
@@ -33,9 +33,9 @@ public class AuthorizationTelegramBotUpdateListener {
         log.info("Receive update with id: {} from user: {}", update.getUpdateId(), user.getUserName());
 
         if (securityService.isAuthorizedUser(user)) {
-            if (userService.isNotExist(user.getId())) {
+            if (userService.isNotExist(user.getId().intValue())) {
                 log.info("Save new user {} {} with username: {}", user.getFirstName(), user.getLastName(), user.getUserName());
-                userService.save(user.getId(), user.getUserName(), user.getFirstName(), user.getLastName(), chatId);
+                userService.save(user.getId().intValue(), user.getUserName(), user.getFirstName(), user.getLastName(), chatId);
             }
 
             TelegramBotUpdateEvent event = new TelegramBotUpdateEvent(update, user.getUserName(), chatId);

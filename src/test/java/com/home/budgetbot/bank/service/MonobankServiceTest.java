@@ -2,34 +2,27 @@ package com.home.budgetbot.bank.service;
 
 import com.home.budgetbot.bank.repository.BalanceHistoryEntity;
 import com.home.budgetbot.bank.repository.BalanceHistoryRepository;
-import com.home.budgetbot.bot.listener.TelegramBotUpdateListener;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.OffsetDateTime;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
-@ActiveProfiles("integration")
-@MockBeans({@MockBean(BalanceServiceImpl.class), @MockBean(TelegramBotUpdateListener.class)})
-class MonobankServiceDailyReportNotifier {
+@MicronautTest(environments = {"integration", "disableTelegramBot"})
+class MonobankServiceTest {
     public static final String ACCOUNT_ID = "TEST";
 
-    @Autowired
-    private BalanceHistoryRepository historyRepository;
+    @Inject
+    BalanceHistoryRepository historyRepository;
 
-    @Autowired
-    private BankService bankService;
+    @Inject
+    BankService bankService;
 
     @BeforeEach
     void setUp() {

@@ -1,14 +1,12 @@
 package com.home.budgetbot.bot.repository.entity.config;
 
-
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 
-import javax.persistence.CollectionTable;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -19,9 +17,8 @@ public class BudgetConfigEntity extends ConfigEntity {
     private int salaryDay;
     private int budgetLimit;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "account_list")
-    @LazyCollection(LazyCollectionOption.FALSE)
     private Collection<String> accountList = new ArrayList<>();
 
     public BudgetConfigEntity() {

@@ -4,20 +4,22 @@ import static com.home.budgetbot.bank.BalanceConverter.balanceToUAH;
 
 import com.home.budgetbot.bank.event.BalanceChangeEvent;
 import com.home.budgetbot.bank.model.BalanceChangedWebhookInput;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
+import io.micronaut.context.event.ApplicationEventPublisher;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Optional;
 
-@Log4j2
-@Service
-@RequiredArgsConstructor
+@Slf4j
+@Singleton
 public class BalanceServiceImpl implements BalanceService {
 
-    private final BankService bankService;
-    private final ApplicationEventPublisher eventPublisher;
+    @Inject
+    BankService bankService;
+
+    @Inject
+    ApplicationEventPublisher<BalanceChangeEvent> eventPublisher;
 
     @Override
     public void balanceChanged(BalanceChangedWebhookInput input) {

@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "jsr330")
 public interface UserMapper {
     UserModel map(UserEntity entity);
 

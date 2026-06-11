@@ -2,25 +2,23 @@ package com.home.budgetbot.bank.webhook;
 
 import com.home.budgetbot.bank.model.BalanceChangedWebhookInput;
 import com.home.budgetbot.bank.service.BalanceService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Body;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Post;
+import jakarta.inject.Inject;
 
-@RestController
-@RequiredArgsConstructor
+@Controller("/personal/balance/webhook")
 public class WebhookController {
 
-    private final BalanceService balanceService;
+    @Inject
+    BalanceService balanceService;
 
-    @RequestMapping(value = "/personal/balance/webhook", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void balanceChangedWebhook(@RequestBody BalanceChangedWebhookInput input) {
+    @Post(consumes = MediaType.APPLICATION_JSON)
+    public HttpResponse<Void> balanceChangedWebhook(@Body BalanceChangedWebhookInput input) {
         balanceService.balanceChanged(input);
+        return HttpResponse.noContent();
     }
 
 }

@@ -6,24 +6,24 @@ import com.home.budgetbot.bot.listener.handler.AbstractUpdateWrapperHandler;
 import com.home.budgetbot.bot.listener.handler.UpdateWrapper;
 import com.home.budgetbot.bot.service.ConfigService;
 import com.home.budgetbot.bot.service.model.ConfigModel;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-@Log4j2
-@Component
+@Slf4j
+@Singleton
 public class SetConfigTextUpdateHandler extends AbstractUpdateWrapperHandler {
 
     private final List<String> userList = new CopyOnWriteArrayList<>();
 
-    @Autowired
-    private ConfigService configService;
+    @Inject
+    ConfigService configService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @Inject
+    ObjectMapper objectMapper;
 
     @Override
     public boolean isSupport(UpdateWrapper wrapper) {

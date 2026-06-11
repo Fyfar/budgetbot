@@ -1,10 +1,10 @@
 package com.home.budgetbot.common.repository;
 
-import org.springframework.stereotype.Repository;
+import jakarta.inject.Singleton;
 
 import java.time.OffsetDateTime;
 
-@Repository
+@Singleton
 public class DateTimeRepositoryImpl implements DateTimeRepository {
     @Override
     public OffsetDateTime getNow() {

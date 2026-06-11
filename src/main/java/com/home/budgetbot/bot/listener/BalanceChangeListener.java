@@ -7,25 +7,29 @@ import com.home.budgetbot.bot.service.MessageService;
 import com.home.budgetbot.bot.service.model.BudgetChangeReportModel;
 import com.home.budgetbot.bot.service.model.ConfigModel;
 import com.home.budgetbot.bot.service.model.MessageModel;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
+import io.micronaut.runtime.event.annotation.EventListener;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Optional;
 
-@Log4j2
-@Component
-@RequiredArgsConstructor
+@Slf4j
+@Singleton
 public class BalanceChangeListener {
 
     public static final String MESSAGE_TEMPLATE = "Баланс изменился: %s\n"
             + "Дневной бюджет: %s\n"
             + "Глобальное отклонение: %s";
 
-    private final ConfigService configService;
-    private final MessageService messageService;
-    private final BudgetService budgetService;
+    @Inject
+    ConfigService configService;
+
+    @Inject
+    MessageService messageService;
+
+    @Inject
+    BudgetService budgetService;
 
     @EventListener
     public void onBalanceChange(BalanceChangeEvent event) {

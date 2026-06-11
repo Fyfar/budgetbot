@@ -5,24 +5,24 @@ import com.home.budgetbot.bot.service.model.BudgetChangeReportModel;
 import com.home.budgetbot.bot.service.model.ConfigModel;
 import com.home.budgetbot.bot.service.model.DailyBudgetReportModel;
 import com.home.budgetbot.common.repository.DateTimeRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
-@Service
+@Singleton
 public class BudgetService {
 
-    @Autowired
-    private BankService bankService;
+    @Inject
+    BankService bankService;
 
-    @Autowired
-    private ConfigService configService;
+    @Inject
+    ConfigService configService;
 
-    @Autowired
-    private DateTimeRepository dateTimeRepository;
+    @Inject
+    DateTimeRepository dateTimeRepository;
 
     public BudgetChangeReportModel getBudgetChangeReport(String accountId) {
         OffsetDateTime now = dateTimeRepository.getNow();

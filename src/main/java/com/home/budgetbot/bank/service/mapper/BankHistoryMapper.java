@@ -4,7 +4,7 @@ import com.home.budgetbot.bank.repository.BalanceHistoryEntity;
 import com.home.budgetbot.bank.service.BalanceHistoryModel;
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "jsr330")
 public interface BankHistoryMapper {
     BalanceHistoryModel map(BalanceHistoryEntity entity);
 

@@ -4,8 +4,8 @@ import com.home.budgetbot.bank.repository.BalanceHistoryEntity;
 import com.home.budgetbot.bank.repository.BalanceHistoryRepository;
 import com.home.budgetbot.bank.service.mapper.BankHistoryMapper;
 import com.home.budgetbot.common.repository.DateTimeRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import java.time.OffsetDateTime;
 import java.util.Comparator;
@@ -13,17 +13,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Service
+@Singleton
 public class MonobankService implements BankService {
 
-    @Autowired
-    private BalanceHistoryRepository repository;
+    @Inject
+    BalanceHistoryRepository repository;
 
-    @Autowired
-    private DateTimeRepository dateTimeRepository;
+    @Inject
+    DateTimeRepository dateTimeRepository;
 
-    @Autowired
-    private BankHistoryMapper bankHistoryMapper;
+    @Inject
+    BankHistoryMapper bankHistoryMapper;
 
     @Override
     public Optional<Integer> findLastBalance(String accountId) {

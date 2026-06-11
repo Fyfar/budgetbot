@@ -3,15 +3,15 @@ package com.home.budgetbot.bot.listener.handler.config;
 import com.home.budgetbot.bot.listener.handler.AbstractUpdateWrapperHandler;
 import com.home.budgetbot.bot.listener.handler.UpdateWrapper;
 import com.home.budgetbot.bot.service.SecurityService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import org.telegram.telegrambots.meta.api.objects.Contact;
 
-@Component
+@Singleton
 public class AddAuthorizedUserUpdateHandler extends AbstractUpdateWrapperHandler {
 
-    @Autowired
-    private SecurityService securityService;
+    @Inject
+    SecurityService securityService;
 
     @Override
     public boolean isSupport(UpdateWrapper wrapper) {
@@ -21,7 +21,8 @@ public class AddAuthorizedUserUpdateHandler extends AbstractUpdateWrapperHandler
     @Override
     public void handle(UpdateWrapper wrapper) {
         wrapper.getContact()
-                .map(Contact::getUserID)
+                .map(Contact::getUserId)
+                .map(Long::intValue)
                 .ifPresent(securityService::addAuthorizedUser);
 
         sendResponse("Добавил в список авторизированных пользователей");

@@ -1,11 +1,12 @@
 package com.home.budgetbot.bank.client;
 
-import feign.Headers;
-import feign.Param;
-import feign.RequestLine;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.Header;
+import io.micronaut.http.client.annotation.Client;
 
+@Client("${monobank.base-url}")
 public interface MonobankClient {
-    @RequestLine("GET /personal/client-info")
-    @Headers("X-Token: {token}")
-    ClientInfoDto getClientInfo(@Param("token") String token);
+
+    @Get("/personal/client-info")
+    ClientInfoDto getClientInfo(@Header("X-Token") String token);
 }

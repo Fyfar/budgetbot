@@ -4,54 +4,33 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.tomakehurst.wiremock.WireMockServer;
 import com.home.budgetbot.bank.BalanceChangeEventListener;
 import com.home.budgetbot.bank.model.BalanceChangedEvent;
 import com.home.budgetbot.bank.model.BalanceChangedWebhookInput;
 import com.home.budgetbot.bank.model.BalanceChangedWebhookInput.AccountData;
 import com.home.budgetbot.bank.repository.BalanceHistoryRepository;
 import com.home.budgetbot.bank.service.BalanceService;
-import com.home.budgetbot.bot.listener.TelegramBotUpdateListener;
-import org.junit.jupiter.api.BeforeAll;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.math.BigInteger;
 import java.time.Instant;
 import java.util.List;
 
-
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
-@ActiveProfiles("integration")
-@MockBeans({@MockBean(TelegramBotUpdateListener.class)})
+@MicronautTest(environments = {"integration", "disableTelegramBot"})
 class BalanceSchedulerTest {
     public static final String ACCOUNT_ID = "q2esff254";
 
-    @Autowired
-    private BalanceService balanceService;
+    @Inject
+    BalanceService balanceService;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    @Inject
+    BalanceHistoryRepository historyRepository;
 
-    @Autowired
-    private BalanceHistoryRepository historyRepository;
-
-    @Autowired
-    private BalanceChangeEventListener eventListener;
-
-    @BeforeAll
-    static void beforeAll() {
-        WireMockServer wireMockServer = new WireMockServer(8080);
-        wireMockServer.start();
-    }
+    @Inject
+    BalanceChangeEventListener eventListener;
 
     @BeforeEach
     void setUp() {

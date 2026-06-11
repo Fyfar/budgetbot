@@ -2,14 +2,14 @@ package com.home.budgetbot.bot.service;
 
 import com.home.budgetbot.bot.repository.UserRepository;
 import com.home.budgetbot.bot.repository.entity.UserEntity;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
-@Service
+@Singleton
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    @Inject
+    UserRepository userRepository;
 
     public boolean isNotExist(int userId) {
         return userRepository.findById(userId).isEmpty();

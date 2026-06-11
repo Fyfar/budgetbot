@@ -1,17 +1,29 @@
-spring:
-  main:
-    banner-mode: off
-  datasource:
+micronaut:
+  application:
+    name: budgetbot
+  server:
+    port: 7070
+
+datasources:
+  default:
     url: jdbc:h2:file:./data/database
     driver-class-name: org.h2.Driver
     username: admin
     password: admin
-  jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
-    hibernate:
-      ddl-auto: update
-monobank:
-  scheduler-delay: 120_000
+    dialect: H2
 
-server:
-  port: 7070
+jpa:
+  default:
+    properties:
+      hibernate:
+        hbm2ddl:
+          auto: update
+        dialect: org.hibernate.dialect.H2Dialect
+
+monobank:
+  base-url: "https://api.monobank.ua"
+
+endpoints:
+  health:
+    enabled: true
+    sensitive: false

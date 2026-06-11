@@ -1,10 +1,10 @@
 package com.home.budgetbot.bot.listener;
 
-import org.springframework.stereotype.Service;
+import jakarta.inject.Singleton;
 
 import java.util.function.Supplier;
 
-@Service
+@Singleton
 public class TelegramBotUpdateEventHolder implements Supplier<TelegramBotUpdateEvent> {
 
     private final ThreadLocal<TelegramBotUpdateEvent> threadLocal = new ThreadLocal<>();

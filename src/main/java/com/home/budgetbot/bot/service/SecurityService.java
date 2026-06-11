@@ -2,34 +2,34 @@ package com.home.budgetbot.bot.service;
 
 import com.home.budgetbot.bot.repository.ConfigRepository;
 import com.home.budgetbot.bot.repository.entity.config.SecurityConfigEntity;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Log4j2
-@Service
+@Slf4j
+@Singleton
 public class SecurityService {
 
-    @Autowired
-    private ConfigRepository configRepository;
+    @Inject
+    ConfigRepository configRepository;
 
     public boolean isAuthorizedUser(User user) {
         SecurityConfigEntity securityConfig = configRepository.getSecurityConfig();
 
         if (isAdminNotExist(securityConfig)) {
             log.warn("Admin not exist, save {} as admin", user.getUserName());
-            addAuthorizedUser(user.getId());
+            addAuthorizedUser(user.getId().intValue());
             return true;
         }
 
         List<Integer> userIdList = new ArrayList<>(securityConfig.getAuthorizedUserList());
 
-        return userIdList.contains(user.getId());
+        return userIdList.contains(user.getId().intValue());
     }
 
     public void addAuthorizedUser(Integer userId) {
@@ -37,7 +37,7 @@ public class SecurityService {
 
         securityConfig.getAuthorizedUserList().add(userId);
 
-        configRepository.save(securityConfig);
+        configRepository.update(securityConfig);
     }
 
     private boolean isAdminNotExist(SecurityConfigEntity securityConfig) {

@@ -1,13 +1,12 @@
 package com.home.budgetbot.bot.repository.entity.config;
 
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 
-import javax.persistence.CollectionTable;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -16,9 +15,8 @@ import java.util.Collection;
 @Accessors(chain = true)
 public class SecurityConfigEntity extends ConfigEntity {
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "authorized_user_list")
-    @LazyCollection(LazyCollectionOption.FALSE)
     private Collection<Integer> authorizedUserList = new ArrayList<>();
 
     public SecurityConfigEntity() {

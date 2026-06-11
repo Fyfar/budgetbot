@@ -1,10 +1,14 @@
 package com.home.budgetbot.bank.repository;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.ToString;
-import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.*;
 import java.time.OffsetDateTime;
 
 @Entity
@@ -13,9 +17,9 @@ import java.time.OffsetDateTime;
 @Table(name = "balance_history")
 public class BalanceHistoryEntity {
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    private String uuid;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "uuid")
+    private String id;
 
     public BalanceHistoryEntity() {
     }
