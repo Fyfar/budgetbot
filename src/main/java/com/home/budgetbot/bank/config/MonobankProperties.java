@@ -6,8 +6,7 @@ import lombok.Data;
 @Data
 @ConfigurationProperties("monobank")
 public class MonobankProperties {
-    /**
-     * Base url to call API
-     */
     private String baseUrl = "https://api.monobank.ua";
+    private String webhookPublicUrl;
+    private String webhookSecret;
 }
