@@ -3,6 +3,10 @@ micronaut:
     name: budgetbot
   server:
     port: 7070
+  http:
+    client:
+      read-timeout: 10s
+      connect-timeout: 5s
 
 datasources:
   default:
