@@ -52,6 +52,17 @@
             <artifactId>micronaut-http-client</artifactId>
         </dependency>
 
+        <!--
+          Micronaut 4 un-bundled YAML support: without snakeyaml on the classpath
+          the framework silently ignores application.yaml and only reads .properties.
+          Required so datasources/jpa/monobank config is actually loaded.
+        -->
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
         <!-- Data: Hibernate JPA + Hikari + H2 -->
         <dependency>
             <groupId>io.micronaut.data</groupId>
