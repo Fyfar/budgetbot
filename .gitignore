@@ -40,6 +40,8 @@ data
 ### AI agent context (local only, not for repo) ###
 CLAUDE.md
 AGENTS.md
+.claude/
+openspec/
 
 ### Completed planning docs ###
 docs/

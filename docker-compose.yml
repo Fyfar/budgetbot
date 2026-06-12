@@ -1,10 +1,13 @@
 services:
   bot:
-    build: .
+    image: ghcr.io/fyfar/budgetbot:latest
     restart: always
-    mem_limit: 384m
+    deploy:
+      resources:
+        limits:
+          memory: 384M
     environment:
-      JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=65.0"
+      JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=65.0 -XX:+UseSerialGC"
       MONOBANK_WEBHOOK_PUBLIC_URL: "${MONOBANK_WEBHOOK_PUBLIC_URL}"
       MONOBANK_WEBHOOK_SECRET: "${MONOBANK_WEBHOOK_SECRET}"
       TZ: "Europe/Kyiv"
@@ -20,12 +23,36 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
 
   cloudflared:
     image: cloudflare/cloudflared:latest
     restart: always
     command: tunnel run
+    deploy:
+      resources:
+        limits:
+          memory: 64M
     environment:
       TUNNEL_TOKEN: "${TUNNEL_TOKEN}"
+    depends_on:
+      - bot
+
+  watchtower:
+    image: containrrr/watchtower:latest
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${HOME}/.docker/config.json:/config.json:ro
+    environment:
+      DOCKER_CONFIG: /config.json
+      WATCHTOWER_POLL_INTERVAL: 300
+      WATCHTOWER_CLEANUP: "true"
+      WATCHTOWER_LABEL_ENABLE: "true"
+    deploy:
+      resources:
+        limits:
+          memory: 64M
     depends_on:
       - bot
