@@ -1,0 +1,31 @@
+services:
+  bot:
+    build: .
+    restart: always
+    mem_limit: 384m
+    environment:
+      JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=65.0"
+      MONOBANK_WEBHOOK_PUBLIC_URL: "${MONOBANK_WEBHOOK_PUBLIC_URL}"
+      MONOBANK_WEBHOOK_SECRET: "${MONOBANK_WEBHOOK_SECRET}"
+      TZ: "Europe/Kyiv"
+    volumes:
+      - ./data:/app/data
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:7070/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: always
+    command: tunnel run
+    environment:
+      TUNNEL_TOKEN: "${TUNNEL_TOKEN}"
+    depends_on:
+      - bot

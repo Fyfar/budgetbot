@@ -6,13 +6,13 @@ import com.home.budgetbot.bot.service.MessageService;
 import com.home.budgetbot.bot.service.model.BudgetConfigModel;
 import com.home.budgetbot.bot.service.model.DailyBudgetReportModel;
 import com.home.budgetbot.bot.service.model.MessageModel;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
+import io.micronaut.scheduling.annotation.Scheduled;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
-@Service
+@Slf4j
+@Singleton
 public class DailyReportNotifier {
 
     public static final String MESSAGE_TEMPLATE = "Account: %s\n"
@@ -20,14 +20,14 @@ public class DailyReportNotifier {
             + "Предыдущий день: %s\n"
             + "Глобальное отклонение: %s";
 
-    @Autowired
-    private MessageService messageService;
+    @Inject
+    MessageService messageService;
 
-    @Autowired
-    private BudgetService budgetService;
+    @Inject
+    BudgetService budgetService;
 
-    @Autowired
-    private ConfigService configService;
+    @Inject
+    ConfigService configService;
 
     @Scheduled(cron = "0 1 0 * * *")
     public void sendDailyReport() {
@@ -108,7 +108,10 @@ public class DailyReportNotifier {
     }
 
     private String generateSecret(String accountId) {
-        return accountId.substring(0, 5) + "*".repeat(accountId.length() - 4);
+        if (accountId.length() <= 5) {
+            return "*".repeat(accountId.length());
+        }
+        return accountId.substring(0, 5) + "*".repeat(accountId.length() - 5);
     }
 
     private String addSign(Integer integer) {

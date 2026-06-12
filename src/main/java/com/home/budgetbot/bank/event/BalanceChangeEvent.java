@@ -1,11 +1,11 @@
 package com.home.budgetbot.bank.event;
 
+import io.micronaut.core.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.Accessors;
-import org.springframework.lang.Nullable;
 
 @Data
 @ToString

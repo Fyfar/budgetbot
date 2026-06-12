@@ -1,53 +1,54 @@
 package com.home.budgetbot.bot.service;
 
-import com.home.budgetbot.bank.event.BalanceScheduler;
-import com.home.budgetbot.bank.repository.BalanceHistoryRepository;
+import com.home.budgetbot.bank.repository.TestBalanceHistoryRepository;
 import com.home.budgetbot.bank.service.BankService;
-import com.home.budgetbot.bot.listener.TelegramBotUpdateListener;
 import com.home.budgetbot.bot.service.model.BudgetChangeReportModel;
 import com.home.budgetbot.bot.service.model.BudgetConfigModel;
 import com.home.budgetbot.bot.service.model.ConfigModel;
 import com.home.budgetbot.bot.service.model.DailyBudgetReportModel;
 import com.home.budgetbot.common.repository.DateTimeRepository;
+import io.micronaut.test.annotation.MockBean;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
-@ActiveProfiles({"integration", "disableTelegramBot"})
-@MockBeans({@MockBean(BalanceScheduler.class), @MockBean(MessageService.class),
-        @MockBean(ConfigService.class), @MockBean(DateTimeRepository.class), @MockBean(TelegramBotUpdateListener.class)})
+@MicronautTest(environments = {"integration", "disableTelegramBot"})
 class BudgetServiceTest {
 
     public static final String ACCOUNT_ID = "sae1d1scc13fSS";
 
-    @Autowired
-    private ConfigService configService;
+    @Inject
+    ConfigService configService;
 
-    @Autowired
-    private DateTimeRepository timeRepository;
+    @Inject
+    DateTimeRepository timeRepository;
 
-    @Autowired
-    private BankService bankService;
+    @Inject
+    BankService bankService;
 
-    @Autowired
-    private BudgetService budgetService;
+    @Inject
+    BudgetService budgetService;
 
-    @Autowired
-    private BalanceHistoryRepository historyRepository;
+    @Inject
+    TestBalanceHistoryRepository historyRepository;
+
+    @MockBean(ConfigService.class)
+    ConfigService configServiceMock() {
+        return mock(ConfigService.class);
+    }
+
+    @MockBean(DateTimeRepository.class)
+    DateTimeRepository timeRepositoryMock() {
+        return mock(DateTimeRepository.class);
+    }
 
     private OffsetDateTime date;
 

@@ -1,9 +1,13 @@
 package com.home.budgetbot.bot.repository.entity.config;
 
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
 import lombok.Data;
 import lombok.experimental.Accessors;
-
-import javax.persistence.*;
 
 @Data
 @Entity

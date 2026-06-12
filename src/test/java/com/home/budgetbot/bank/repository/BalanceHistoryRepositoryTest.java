@@ -1,32 +1,26 @@
 package com.home.budgetbot.bank.repository;
 
-import com.home.budgetbot.bank.event.BalanceScheduler;
-import com.home.budgetbot.bot.listener.TelegramBotUpdateListener;
-import com.home.budgetbot.bot.service.ConfigService;
-import com.home.budgetbot.bot.service.MessageService;
-import com.home.budgetbot.common.repository.DateTimeRepository;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import jakarta.inject.Inject;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.OffsetDateTime;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
-@ActiveProfiles("integration")
-@MockBeans({@MockBean(BalanceScheduler.class), @MockBean(TelegramBotUpdateListener.class)})
-class BalanceHistoryRepositoryIntegrationDailyReportNotifier {
+@MicronautTest(environments = {"integration", "disableTelegramBot"})
+class BalanceHistoryRepositoryTest {
 
     public static final String ACCOUNT_ID = "TEST";
-    @Autowired
-    private BalanceHistoryRepository historyRepository;
+
+    @Inject
+    TestBalanceHistoryRepository historyRepository;
+
+    @BeforeEach
+    void setUp() {
+        historyRepository.deleteAll();
+    }
 
     @Test
     void shouldReturnLastValue() {
@@ -34,7 +28,7 @@ class BalanceHistoryRepositoryIntegrationDailyReportNotifier {
 
         for (int i = 0; i < 10; i++) {
             time = time.plusDays(1);
-            BalanceHistoryEntity entity = new BalanceHistoryEntity(ACCOUNT_ID+"_WRONG", i, time);
+            BalanceHistoryEntity entity = new BalanceHistoryEntity(ACCOUNT_ID + "_WRONG", i, time);
             historyRepository.save(entity);
         }
 
@@ -46,7 +40,7 @@ class BalanceHistoryRepositoryIntegrationDailyReportNotifier {
 
         for (int i = 20; i < 30; i++) {
             time = time.plusDays(1);
-            BalanceHistoryEntity entity = new BalanceHistoryEntity(ACCOUNT_ID+"_WRONG", i, time);
+            BalanceHistoryEntity entity = new BalanceHistoryEntity(ACCOUNT_ID + "_WRONG", i, time);
             historyRepository.save(entity);
         }
 

@@ -4,7 +4,7 @@ import com.home.budgetbot.bot.repository.entity.config.BudgetConfigEntity;
 import com.home.budgetbot.bot.service.model.BudgetConfigModel;
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "jsr330")
 public interface BudgetConfigMapper {
     BudgetConfigModel map(BudgetConfigEntity entity);
 

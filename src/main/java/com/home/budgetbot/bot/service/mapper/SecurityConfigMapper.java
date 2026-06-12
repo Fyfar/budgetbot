@@ -4,7 +4,7 @@ import com.home.budgetbot.bot.repository.entity.config.SecurityConfigEntity;
 import com.home.budgetbot.bot.service.model.SecurityConfigModel;
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "jsr330")
 public interface SecurityConfigMapper {
     SecurityConfigModel map(SecurityConfigEntity entity);
 

@@ -1,10 +1,9 @@
 package com.home.budgetbot.bot.repository.entity;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import lombok.Data;
 import lombok.experimental.Accessors;
-
-import javax.persistence.Entity;
-import javax.persistence.Id;
 
 @Data
 @Entity

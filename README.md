@@ -1,25 +1,23 @@
-# Links
+# BudgetBot
+
+Telegram bot that tracks Monobank balance changes and sends daily budget reports.
+
+## Links
 - [Monobank API](https://api.monobank.ua/docs/)
-- [Bot Father](https://t.me/BotFather)
+- [BotFather](https://t.me/BotFather)
 
-# Deploy
+## Deploy
 
-### Create docker config
+### 1. Prepare config files
 
-Monobank config file example:
+Create `./data/monobank.json`:
 ```json
 {
-  "tokenList": [
-    "your_token"
-  ]
+  "tokenList": ["your_monobank_token"]
 }
 ```
 
-```bash
-> docker config create budgetbot_monobank.json YOUR_FILE_NAME
-```
-
-Telegram config file example:
+Create `./data/telegram.json`:
 ```json
 {
   "login": "your_bot_username",
@@ -27,46 +25,47 @@ Telegram config file example:
 }
 ```
 
-```bash
-> docker config create budgetbot_telegram.json YOUR_FILE_NAME
-```
-
-### Create docker volume to store database
+### 2. Configure secrets
 
 ```bash
-> docker volume create --name=budgetbot-data
+cp .env.example .env
+# Edit .env: set TUNNEL_TOKEN, MONOBANK_WEBHOOK_PUBLIC_URL, MONOBANK_WEBHOOK_SECRET
 ```
 
-### Deploy stack
-```yaml
-version: '3.3'
-services:
-  bot:
-    image: dassader/budgetbot
-    restart: always
-    volumes:
-      - "budgetbot-data:/data"
-    configs:
-      - source: budgetbot_monobank.json
-        target: /data/monobank.json
-      - source: budgetbot_telegram.json
-        target: /data/telegram.json
-    deploy:
-      mode: global
-    environment:
-      TZ: Europe/Kiev
+`MONOBANK_WEBHOOK_SECRET` should be a long random string (e.g. `openssl rand -hex 32`).
 
-volumes:
-  budgetbot-data:
-    external: true
+### 3. Set up Cloudflare Tunnel
 
-configs:
-  budgetbot_monobank.json:
-    external: true
-  budgetbot_telegram.json:
-    external: true
-```
+In [Cloudflare Zero Trust](https://one.dash.cloudflare.com/) → Networks → Tunnels:
+1. Create a named tunnel, copy the **token** → `TUNNEL_TOKEN` in `.env`
+2. Add public hostname: `budgetbot.yourdomain.com` → service type `HTTP`, URL `bot:7070`
+3. Set `MONOBANK_WEBHOOK_PUBLIC_URL=https://budgetbot.yourdomain.com` in `.env`
+
+### 4. Start
 
 ```bash
-> docker stack deploy --compose-file=docker-compose.yaml YOUR_STACK_NAME
+docker compose up -d --build
+```
+
+Verify:
+```bash
+# Health check
+docker compose exec bot curl -fsS http://localhost:7070/health
+
+# Webhook handshake (should return 200)
+curl https://budgetbot.yourdomain.com/personal/balance/webhook/<your-secret>
+
+# Logs
+docker compose logs -f
+```
+
+The app registers the webhook with Monobank automatically on startup. A 6-hourly cron
+re-registers it if Monobank disables it after failed deliveries.
+
+## Development
+
+```bash
+# Java 21 required
+mvn clean test          # run tests
+mvn package -DskipTests # build jar → target/budgetbot-1.0.0.jar
 ```

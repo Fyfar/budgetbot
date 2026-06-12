@@ -12,7 +12,6 @@ import java.util.List;
 public class MessageModel {
     private String message;
     private List<String> chatList = new ArrayList<>();
-    private List<List<InlineKeyboardModel>> inlineKeyboard = new ArrayList<>();
 
     public MessageModel() {
     }

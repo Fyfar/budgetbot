@@ -1,56 +1,36 @@
 package com.home.budgetbot.bank.event;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.tomakehurst.wiremock.WireMockServer;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import com.home.budgetbot.bank.BalanceChangeEventListener;
-import com.home.budgetbot.bank.client.AccountDto;
-import com.home.budgetbot.bank.client.ClientInfoDto;
-import com.home.budgetbot.bank.repository.BalanceHistoryRepository;
-import com.home.budgetbot.bot.listener.TelegramBotUpdateListener;
-import com.home.budgetbot.bot.service.ConfigService;
-import com.home.budgetbot.bot.service.MessageService;
-import com.home.budgetbot.common.repository.DateTimeRepository;
-import lombok.SneakyThrows;
-import org.junit.jupiter.api.BeforeAll;
+import com.home.budgetbot.bank.model.BalanceChangedEvent;
+import com.home.budgetbot.bank.model.BalanceChangedWebhookInput;
+import com.home.budgetbot.bank.model.BalanceChangedWebhookInput.AccountData;
+import com.home.budgetbot.bank.repository.TestBalanceHistoryRepository;
+import com.home.budgetbot.bank.service.BalanceService;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.math.BigInteger;
+import java.time.Instant;
 import java.util.List;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.jupiter.api.Assertions.*;
-
-
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
-@ActiveProfiles("integration")
-@MockBeans({@MockBean(TelegramBotUpdateListener.class)})
+@MicronautTest(environments = {"integration", "disableTelegramBot"})
 class BalanceSchedulerTest {
     public static final String ACCOUNT_ID = "q2esff254";
 
-    @Autowired
-    private BalanceScheduler balanceScheduler;
+    @Inject
+    BalanceService balanceService;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    @Inject
+    TestBalanceHistoryRepository historyRepository;
 
-    @Autowired
-    private BalanceHistoryRepository historyRepository;
-
-    @Autowired
-    private BalanceChangeEventListener eventListener;
-
-    @BeforeAll
-    static void beforeAll() {
-        WireMockServer wireMockServer = new WireMockServer(8080);
-        wireMockServer.start();
-    }
+    @Inject
+    BalanceChangeEventListener eventListener;
 
     @BeforeEach
     void setUp() {
@@ -58,47 +38,11 @@ class BalanceSchedulerTest {
         eventListener.clean();
     }
 
-    @SneakyThrows
-    private void mockClientInfo(String accountId, int balance) {
-        AccountDto accountDto = new AccountDto()
-                .setId(accountId)
-                .setBalance(balance);
-
-        ClientInfoDto clientInfoDto = new ClientInfoDto()
-                .setAccounts(List.of(accountDto));
-
-        String response = objectMapper.writeValueAsString(clientInfoDto);
-
-        stubFor(get(urlEqualTo("/personal/client-info"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", "application/json")
-                        .withBody(response)));
-    }
-
     @Test
     void shouldFireEventWithNullOldValue() {
-        mockClientInfo(ACCOUNT_ID, 10023);
-
-        balanceScheduler.checkBalanceChange();
-
-        List<BalanceChangeEvent> eventList = eventListener.getEventList();
-
-        assertEquals(1, eventList.size());
-        assertEquals(100, eventList.get(0).getNewBalance());
-        assertNull(eventList.get(0).getOldBalance());
-        assertNotNull(eventList.get(0).getAccountId());
-    }
-
-    @Test
-    void shouldNotFireEventWhenNoChanges() {
-        mockClientInfo(ACCOUNT_ID, 10023);
-
-        balanceScheduler.checkBalanceChange();
-
-        mockClientInfo(ACCOUNT_ID, 10023);
-
-        balanceScheduler.checkBalanceChange();
+        BalanceChangedEvent balance = new BalanceChangedEvent("tx-first-event", Instant.now(), "descr", BigInteger.ONE, BigInteger.valueOf(10022), false);
+        BalanceChangedWebhookInput input = new BalanceChangedWebhookInput("type", new AccountData(ACCOUNT_ID, balance));
+        balanceService.balanceChanged(input);
 
         List<BalanceChangeEvent> eventList = eventListener.getEventList();
 
@@ -109,20 +53,32 @@ class BalanceSchedulerTest {
     }
 
     @Test
-    void shouldHaveOldValue() {
-        mockClientInfo(ACCOUNT_ID, 10023);
+    void shouldNotFireEventOnSettlementAfterHold() {
+        // hold=true arrives first → fires notification
+        BalanceChangedEvent holdPayload = new BalanceChangedEvent("tx-hold-settle", Instant.now(), "descr", BigInteger.ONE, BigInteger.valueOf(10022), true);
+        BalanceChangedWebhookInput holdInput = new BalanceChangedWebhookInput("type", new AccountData(ACCOUNT_ID, holdPayload));
+        balanceService.balanceChanged(holdInput);
 
-        balanceScheduler.checkBalanceChange();
+        // hold=false (settlement) arrives with same transaction id → deduplicated
+        BalanceChangedEvent settlePayload = new BalanceChangedEvent("tx-hold-settle", Instant.now(), "descr", BigInteger.ONE, BigInteger.valueOf(10022), false);
+        BalanceChangedWebhookInput settleInput = new BalanceChangedWebhookInput("type", new AccountData(ACCOUNT_ID, settlePayload));
+        balanceService.balanceChanged(settleInput);
 
-        mockClientInfo(ACCOUNT_ID, 20023);
+        assertEquals(1, eventListener.getEventList().size());
+    }
 
-        balanceScheduler.checkBalanceChange();
+    @Test
+    void shouldNotFireEventWhenBalanceUnchanged() {
+        BalanceChangedEvent firstPayload = new BalanceChangedEvent("tx-dedup", Instant.now(), "descr", BigInteger.ONE, BigInteger.valueOf(10022), false);
+        BalanceChangedWebhookInput firstInput = new BalanceChangedWebhookInput("type", new AccountData(ACCOUNT_ID, firstPayload));
+        balanceService.balanceChanged(firstInput);
+
+        // Same balance again — deduplication guard should suppress the second event
+        balanceService.balanceChanged(firstInput);
 
         List<BalanceChangeEvent> eventList = eventListener.getEventList();
 
-        assertEquals(2, eventList.size());
-        assertEquals(200, eventList.get(1).getNewBalance());
-        assertEquals(100, eventList.get(1).getOldBalance());
-        assertNotNull(eventList.get(0).getAccountId());
+        assertEquals(1, eventList.size());
+        assertEquals(100, eventList.get(0).getNewBalance());
     }
 }

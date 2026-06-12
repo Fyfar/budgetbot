@@ -7,29 +7,29 @@ import com.home.budgetbot.bot.service.MessageService;
 import com.home.budgetbot.bot.service.model.BudgetChangeReportModel;
 import com.home.budgetbot.bot.service.model.ConfigModel;
 import com.home.budgetbot.bot.service.model.MessageModel;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
+import io.micronaut.runtime.event.annotation.EventListener;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Optional;
 
-@Log4j2
-@Component
+@Slf4j
+@Singleton
 public class BalanceChangeListener {
 
     public static final String MESSAGE_TEMPLATE = "Баланс изменился: %s\n"
             + "Дневной бюджет: %s\n"
             + "Глобальное отклонение: %s";
 
-    @Autowired
-    private ConfigService configService;
+    @Inject
+    ConfigService configService;
 
-    @Autowired
-    private MessageService messageService;
+    @Inject
+    MessageService messageService;
 
-    @Autowired
-    private BudgetService budgetService;
+    @Inject
+    BudgetService budgetService;
 
     @EventListener
     public void onBalanceChange(BalanceChangeEvent event) {
@@ -37,6 +37,8 @@ public class BalanceChangeListener {
         String accountId = event.getAccountId();
 
         if (!config.getBudget().getAccountList().contains(accountId)) {
+            log.info("Account {} is not in the budget account list {}; skipping notification",
+                    accountId, config.getBudget().getAccountList());
             return;
         }
 

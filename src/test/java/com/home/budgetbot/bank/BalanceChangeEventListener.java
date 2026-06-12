@@ -1,13 +1,13 @@
 package com.home.budgetbot.bank;
 
 import com.home.budgetbot.bank.event.BalanceChangeEvent;
-import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
+import io.micronaut.runtime.event.annotation.EventListener;
+import jakarta.inject.Singleton;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+@Singleton
 public class BalanceChangeEventListener {
 
     private List<BalanceChangeEvent> eventList = new ArrayList<>();

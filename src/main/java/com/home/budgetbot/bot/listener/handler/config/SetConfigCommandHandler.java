@@ -2,15 +2,15 @@ package com.home.budgetbot.bot.listener.handler.config;
 
 import com.home.budgetbot.bot.listener.handler.AbstractCommandHandler;
 import com.home.budgetbot.bot.listener.handler.UpdateWrapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
-@Component
+@Singleton
 public class SetConfigCommandHandler extends AbstractCommandHandler {
     public static final String COMMAND = "/set_config";
 
-    @Autowired
-    private SetConfigTextUpdateHandler handler;
+    @Inject
+    SetConfigTextUpdateHandler handler;
 
     public SetConfigCommandHandler() {
         super(COMMAND, "Сохранить настройки");

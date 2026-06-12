@@ -22,28 +22,6 @@ public class UpdateWrapper {
         return getCallback().map(CallbackQuery::getData);
     }
 
-    public String getTextForce() {
-        return getText()
-                .orElseThrow(() -> new IllegalStateException("Update don't have text"));
-    }
-
-    public Optional<Integer> getMessageId() {
-        Optional<Integer> messageIdFromMessage = getMessage().map(Message::getMessageId);
-
-        if (messageIdFromMessage.isPresent()) {
-            return messageIdFromMessage;
-        }
-
-        return getCallback()
-                .map(CallbackQuery::getMessage)
-                .map(Message::getMessageId);
-    }
-
-    public Integer getMessageIdForce() {
-        return getMessageId()
-                .orElseThrow(() -> new IllegalStateException("Update don't have message id"));
-    }
-
     public Optional<Message> getMessage() {
         return Optional.of(update)
                 .filter(Update::hasMessage)
