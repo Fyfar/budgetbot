@@ -9,11 +9,17 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.Instant;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Singleton
 public class BalanceServiceImpl implements BalanceService {
+
+    private final Map<String, Instant> seenTransactionIds = new ConcurrentHashMap<>();
 
     @Inject
     BankService bankService;
@@ -27,6 +33,18 @@ public class BalanceServiceImpl implements BalanceService {
             log.warn("Ignoring webhook with missing data or statementItem (likely a Monobank ping)");
             return;
         }
+
+        if (input.getAccountData().getStatementItem().isHold()) {
+            log.debug("Skipping hold (pending) transaction, will process on settlement");
+            return;
+        }
+
+        String txId = input.getAccountData().getStatementItem().getId();
+        if (txId != null && isDuplicate(txId)) {
+            log.info("Duplicate webhook for transaction {}, skipping", txId);
+            return;
+        }
+
         String accountId = input.getAccountData().getAccount();
         Optional<Integer> lastBalance = bankService.findLastBalance(accountId);
 
@@ -44,5 +62,20 @@ public class BalanceServiceImpl implements BalanceService {
         bankService.saveToHistory(accountId, newBalance, newBalance % 100);
         log.info("Account with id: {} have balance change: {} -> {}", accountId, changeEvent.getOldBalance(), changeEvent.getNewBalance());
         eventPublisher.publishEvent(changeEvent);
+    }
+
+    private boolean isDuplicate(String txId) {
+        evictExpired();
+        return seenTransactionIds.putIfAbsent(txId, Instant.now()) != null;
+    }
+
+    private void evictExpired() {
+        Instant cutoff = Instant.now().minusSeconds(3600);
+        Iterator<Map.Entry<String, Instant>> it = seenTransactionIds.entrySet().iterator();
+        while (it.hasNext()) {
+            if (it.next().getValue().isBefore(cutoff)) {
+                it.remove();
+            }
+        }
     }
 }

@@ -40,7 +40,7 @@ class BalanceSchedulerTest {
 
     @Test
     void shouldFireEventWithNullOldValue() {
-        BalanceChangedEvent balance = new BalanceChangedEvent(Instant.now(), "descr", BigInteger.ONE, BigInteger.valueOf(10022));
+        BalanceChangedEvent balance = new BalanceChangedEvent("tx-first-event", Instant.now(), "descr", BigInteger.ONE, BigInteger.valueOf(10022), false);
         BalanceChangedWebhookInput input = new BalanceChangedWebhookInput("type", new AccountData(ACCOUNT_ID, balance));
         balanceService.balanceChanged(input);
 
@@ -53,8 +53,17 @@ class BalanceSchedulerTest {
     }
 
     @Test
+    void shouldSkipHoldTransactions() {
+        BalanceChangedEvent holdPayload = new BalanceChangedEvent("tx-hold", Instant.now(), "descr", BigInteger.ONE, BigInteger.valueOf(10022), true);
+        BalanceChangedWebhookInput holdInput = new BalanceChangedWebhookInput("type", new AccountData(ACCOUNT_ID, holdPayload));
+        balanceService.balanceChanged(holdInput);
+
+        assertEquals(0, eventListener.getEventList().size());
+    }
+
+    @Test
     void shouldNotFireEventWhenBalanceUnchanged() {
-        BalanceChangedEvent firstPayload = new BalanceChangedEvent(Instant.now(), "descr", BigInteger.ONE, BigInteger.valueOf(10022));
+        BalanceChangedEvent firstPayload = new BalanceChangedEvent("tx-dedup", Instant.now(), "descr", BigInteger.ONE, BigInteger.valueOf(10022), false);
         BalanceChangedWebhookInput firstInput = new BalanceChangedWebhookInput("type", new AccountData(ACCOUNT_ID, firstPayload));
         balanceService.balanceChanged(firstInput);
 

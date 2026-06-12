@@ -14,9 +14,11 @@ import java.time.Instant;
 @AllArgsConstructor
 public class BalanceChangedEvent {
 
+    private String id;
     private Instant time;
     private String description;
     private BigInteger amount;
     private BigInteger balance;
+    private boolean hold;
 
 }
