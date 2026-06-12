@@ -23,14 +23,14 @@ public class BalanceServiceImpl implements BalanceService {
 
     @Override
     public void balanceChanged(BalanceChangedWebhookInput input) {
-        if (input.getAccountData() == null || input.getBalanceChangedEvent() == null) {
+        if (input.getAccountData() == null || input.getAccountData().getStatementItem() == null) {
             log.warn("Ignoring webhook with missing data or statementItem (likely a Monobank ping)");
             return;
         }
         String accountId = input.getAccountData().getAccount();
         Optional<Integer> lastBalance = bankService.findLastBalance(accountId);
 
-        int newBalance = balanceToUAH(input.getBalanceChangedEvent().getBalance()).intValue();
+        int newBalance = balanceToUAH(input.getAccountData().getStatementItem().getBalance()).intValue();
         BalanceChangeEvent changeEvent = new BalanceChangeEvent()
                 .setNewBalance(newBalance)
                 .setAccountId(accountId);

@@ -13,13 +13,14 @@ public class BalanceChangedWebhookInput {
     private String type;
     @JsonProperty("data")
     private AccountData accountData;
-    @JsonProperty("statementItem")
-    private BalanceChangedEvent balanceChangedEvent;
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class AccountData {
         private String account;
+        // Monobank nests the transaction under data.statementItem (absent on ping events).
+        @JsonProperty("statementItem")
+        private BalanceChangedEvent statementItem;
     }
 }

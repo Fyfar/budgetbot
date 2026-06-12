@@ -41,7 +41,7 @@ class BalanceSchedulerTest {
     @Test
     void shouldFireEventWithNullOldValue() {
         BalanceChangedEvent balance = new BalanceChangedEvent(Instant.now(), "descr", BigInteger.ONE, BigInteger.valueOf(10022));
-        BalanceChangedWebhookInput input = new BalanceChangedWebhookInput("type", new AccountData(ACCOUNT_ID), balance);
+        BalanceChangedWebhookInput input = new BalanceChangedWebhookInput("type", new AccountData(ACCOUNT_ID, balance));
         balanceService.balanceChanged(input);
 
         List<BalanceChangeEvent> eventList = eventListener.getEventList();
@@ -55,7 +55,7 @@ class BalanceSchedulerTest {
     @Test
     void shouldNotFireEventWhenBalanceUnchanged() {
         BalanceChangedEvent firstPayload = new BalanceChangedEvent(Instant.now(), "descr", BigInteger.ONE, BigInteger.valueOf(10022));
-        BalanceChangedWebhookInput firstInput = new BalanceChangedWebhookInput("type", new AccountData(ACCOUNT_ID), firstPayload);
+        BalanceChangedWebhookInput firstInput = new BalanceChangedWebhookInput("type", new AccountData(ACCOUNT_ID, firstPayload));
         balanceService.balanceChanged(firstInput);
 
         // Same balance again — deduplication guard should suppress the second event
