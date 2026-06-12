@@ -37,6 +37,8 @@ public class BalanceChangeListener {
         String accountId = event.getAccountId();
 
         if (!config.getBudget().getAccountList().contains(accountId)) {
+            log.info("Account {} is not in the budget account list {}; skipping notification",
+                    accountId, config.getBudget().getAccountList());
             return;
         }
 
