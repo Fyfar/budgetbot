@@ -2,6 +2,7 @@ package com.home.budgetbot.bank.repository;
 
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.OffsetDateTime;
@@ -14,7 +15,12 @@ class BalanceHistoryRepositoryTest {
     public static final String ACCOUNT_ID = "TEST";
 
     @Inject
-    BalanceHistoryRepository historyRepository;
+    TestBalanceHistoryRepository historyRepository;
+
+    @BeforeEach
+    void setUp() {
+        historyRepository.deleteAll();
+    }
 
     @Test
     void shouldReturnLastValue() {

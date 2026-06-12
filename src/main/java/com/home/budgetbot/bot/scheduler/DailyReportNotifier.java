@@ -108,7 +108,10 @@ public class DailyReportNotifier {
     }
 
     private String generateSecret(String accountId) {
-        return accountId.substring(0, 5) + "*".repeat(accountId.length() - 4);
+        if (accountId.length() <= 5) {
+            return "*".repeat(accountId.length());
+        }
+        return accountId.substring(0, 5) + "*".repeat(accountId.length() - 5);
     }
 
     private String addSign(Integer integer) {

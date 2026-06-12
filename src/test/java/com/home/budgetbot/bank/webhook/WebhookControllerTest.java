@@ -2,6 +2,7 @@ package com.home.budgetbot.bank.webhook;
 
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpStatus;
+import io.micronaut.http.MediaType;
 import io.micronaut.http.client.HttpClient;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
@@ -14,6 +15,25 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @MicronautTest(environments = {"integration", "disableTelegramBot"})
 class WebhookControllerTest {
+
+    private static final String VALID_PAYLOAD = """
+            {
+              "type": "StatementItem",
+              "data": {"account": "test-account"},
+              "statementItem": {
+                "amount": -5000,
+                "balance": 950000,
+                "description": "coffee"
+              }
+            }
+            """;
+
+    private static final String PING_PAYLOAD = """
+            {
+              "type": "StatementItem",
+              "data": {"account": "test-account"}
+            }
+            """;
 
     @Inject
     @Client("/")
@@ -32,5 +52,33 @@ class WebhookControllerTest {
         HttpClientResponseException ex = assertThrows(HttpClientResponseException.class,
                 () -> client.toBlocking().exchange(HttpRequest.GET("/personal/balance/webhook/wrong")));
         assertEquals(HttpStatus.NOT_FOUND, ex.getStatus());
+    }
+
+    @Test
+    void postWithValidSecretAndPayloadReturns204() {
+        HttpStatus status = client.toBlocking()
+                .exchange(HttpRequest.POST("/personal/balance/webhook/test-secret", VALID_PAYLOAD)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .status();
+        assertEquals(HttpStatus.NO_CONTENT, status);
+    }
+
+    @Test
+    void postWithWrongSecretReturns404() {
+        HttpClientResponseException ex = assertThrows(HttpClientResponseException.class,
+                () -> client.toBlocking().exchange(
+                        HttpRequest.POST("/personal/balance/webhook/wrong", VALID_PAYLOAD)
+                                .contentType(MediaType.APPLICATION_JSON)));
+        assertEquals(HttpStatus.NOT_FOUND, ex.getStatus());
+    }
+
+    @Test
+    void postWithMissingStatementItemReturns204() {
+        // Monobank sends ping events without statementItem; must not return 500
+        HttpStatus status = client.toBlocking()
+                .exchange(HttpRequest.POST("/personal/balance/webhook/test-secret", PING_PAYLOAD)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .status();
+        assertEquals(HttpStatus.NO_CONTENT, status);
     }
 }

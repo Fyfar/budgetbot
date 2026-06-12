@@ -1,7 +1,7 @@
 package com.home.budgetbot.bank.service;
 
 import com.home.budgetbot.bank.repository.BalanceHistoryEntity;
-import com.home.budgetbot.bank.repository.BalanceHistoryRepository;
+import com.home.budgetbot.bank.repository.TestBalanceHistoryRepository;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +19,7 @@ class MonobankServiceTest {
     public static final String ACCOUNT_ID = "TEST";
 
     @Inject
-    BalanceHistoryRepository historyRepository;
+    TestBalanceHistoryRepository historyRepository;
 
     @Inject
     BankService bankService;

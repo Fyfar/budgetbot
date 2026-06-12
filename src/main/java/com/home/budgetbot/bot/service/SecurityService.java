@@ -18,7 +18,7 @@ public class SecurityService {
     @Inject
     ConfigRepository configRepository;
 
-    public boolean isAuthorizedUser(User user) {
+    public synchronized boolean isAuthorizedUser(User user) {
         SecurityConfigEntity securityConfig = configRepository.getSecurityConfig();
 
         if (isAdminNotExist(securityConfig)) {
@@ -32,12 +32,13 @@ public class SecurityService {
         return userIdList.contains(user.getId().intValue());
     }
 
-    public void addAuthorizedUser(Integer userId) {
+    public synchronized void addAuthorizedUser(Integer userId) {
         SecurityConfigEntity securityConfig = configRepository.getSecurityConfig();
 
-        securityConfig.getAuthorizedUserList().add(userId);
-
-        configRepository.update(securityConfig);
+        if (!securityConfig.getAuthorizedUserList().contains(userId)) {
+            securityConfig.getAuthorizedUserList().add(userId);
+            configRepository.update(securityConfig);
+        }
     }
 
     private boolean isAdminNotExist(SecurityConfigEntity securityConfig) {

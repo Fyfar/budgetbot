@@ -25,7 +25,7 @@ jpa:
         dialect: org.hibernate.dialect.H2Dialect
 
 monobank:
-  base-url: ${MONOBANK_BASE_URL:`https://api.monobank.ua`}
+  base-url: https://api.monobank.ua
   webhook-public-url: ${MONOBANK_WEBHOOK_PUBLIC_URL:}
   webhook-secret: ${MONOBANK_WEBHOOK_SECRET:}
 

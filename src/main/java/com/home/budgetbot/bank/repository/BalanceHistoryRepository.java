@@ -14,8 +14,6 @@ public interface BalanceHistoryRepository extends GenericRepository<BalanceHisto
 
     BalanceHistoryEntity save(BalanceHistoryEntity entity);
 
-    void deleteAll();
-
     @Query("SELECT b FROM BalanceHistoryEntity b WHERE b.accountId = :accountId ORDER BY b.time DESC")
     List<BalanceHistoryEntity> findByAccountIdOrderByTimeDescPaged(String accountId, Pageable pageable);
 

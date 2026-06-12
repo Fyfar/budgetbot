@@ -109,11 +109,11 @@ public class BudgetService {
 
     protected int getDaysCountTillSalary(OffsetDateTime day, int salaryDay) {
         int count = 1;
-
-        for (OffsetDateTime date = day; date.getDayOfMonth() != salaryDay; date = date.plusDays(1)) {
+        // Cap at 366 to guard against invalid salaryDay values (e.g. 0 or 32) that
+        // would never match getDayOfMonth() and cause an infinite loop.
+        for (OffsetDateTime date = day; date.getDayOfMonth() != salaryDay && count <= 366; date = date.plusDays(1)) {
             count++;
         }
-
         return count;
     }
 }

@@ -34,10 +34,7 @@ public class MessageService {
 
         List<String> chatList = userRepository.findAll().stream()
                 .map(UserEntity::getChatId)
-                .filter(target -> {
-                    int chatId = Math.toIntExact(target);
-                    return authorizedUserList.contains(chatId);
-                })
+                .filter(target -> authorizedUserList.stream().anyMatch(id -> id.longValue() == target))
                 .map(String::valueOf)
                 .collect(Collectors.toList());
 

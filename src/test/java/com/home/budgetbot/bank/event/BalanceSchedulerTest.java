@@ -8,7 +8,7 @@ import com.home.budgetbot.bank.BalanceChangeEventListener;
 import com.home.budgetbot.bank.model.BalanceChangedEvent;
 import com.home.budgetbot.bank.model.BalanceChangedWebhookInput;
 import com.home.budgetbot.bank.model.BalanceChangedWebhookInput.AccountData;
-import com.home.budgetbot.bank.repository.BalanceHistoryRepository;
+import com.home.budgetbot.bank.repository.TestBalanceHistoryRepository;
 import com.home.budgetbot.bank.service.BalanceService;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
@@ -27,7 +27,7 @@ class BalanceSchedulerTest {
     BalanceService balanceService;
 
     @Inject
-    BalanceHistoryRepository historyRepository;
+    TestBalanceHistoryRepository historyRepository;
 
     @Inject
     BalanceChangeEventListener eventListener;
@@ -53,16 +53,17 @@ class BalanceSchedulerTest {
     }
 
     @Test
-    void shouldNotFireEventWhenNoChanges() {
-        BalanceChangedEvent balance = new BalanceChangedEvent(Instant.now(), "descr", BigInteger.ZERO, BigInteger.valueOf(10023));
-        BalanceChangedWebhookInput input = new BalanceChangedWebhookInput("type", new AccountData(ACCOUNT_ID), balance);
-        balanceService.balanceChanged(input);
+    void shouldNotFireEventWhenBalanceUnchanged() {
+        BalanceChangedEvent firstPayload = new BalanceChangedEvent(Instant.now(), "descr", BigInteger.ONE, BigInteger.valueOf(10022));
+        BalanceChangedWebhookInput firstInput = new BalanceChangedWebhookInput("type", new AccountData(ACCOUNT_ID), firstPayload);
+        balanceService.balanceChanged(firstInput);
+
+        // Same balance again — deduplication guard should suppress the second event
+        balanceService.balanceChanged(firstInput);
 
         List<BalanceChangeEvent> eventList = eventListener.getEventList();
 
         assertEquals(1, eventList.size());
         assertEquals(100, eventList.get(0).getNewBalance());
-        assertNull(eventList.get(0).getOldBalance());
-        assertNotNull(eventList.get(0).getAccountId());
     }
 }

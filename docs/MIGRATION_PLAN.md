@@ -50,7 +50,7 @@ Oracle), rebuilt on a **lean, low-memory Micronaut + Java 21 stack**, deployed w
 Copy this file to **`docs/MIGRATION_PLAN.md`** and commit, so it can be versioned and edited.
 (Plan mode could not write into the repo directly.)
 
-## Phase 0 — Server hygiene (host, one-time, no app change)
+## Phase 0 — Server hygiene (host, one-time, no app change) ✅ DONE
 
 Biggest stability win, independent of all code work.
 
@@ -61,7 +61,7 @@ Biggest stability win, independent of all code work.
 3. Tear down the old Swarm deploy: `docker stack rm <stack>`, `docker swarm leave --force`, remove
    old `docker config` objects and the named volume (after data is moved to a bind mount in Phase 4).
 
-## Phase 1 — Rewrite to Micronaut 4 + Java 21
+## Phase 1 — Rewrite to Micronaut 4 + Java 21 ✅ DONE (commit ae4dbf3)
 
 The codebase is small (~50 mostly-simple files). This is a **mechanical port**, not a redesign:
 keep the same package structure, domain models, DTOs, MapStruct mappers, Lombok, and the
@@ -106,7 +106,7 @@ are still `javax.persistence`.
 `org.wiremock:wiremock:3.x`). Port `BudgetServiceTest`, `BalanceSchedulerTest` (rename/repurpose to
 webhook test), and the integration tests. Goal: `./mvnw clean test` green.
 
-## Phase 2 — Resilience hardening (correctness + robustness)
+## Phase 2 — Resilience hardening (correctness + robustness) ✅ DONE (commit 8b57f2e)
 
 - **HTTP client timeouts** on the Micronaut `@Client` (`read-timeout`, `connect-timeout` ~5–10 s) —
   the direct fix for the original "hung call" timeouts.
@@ -116,7 +116,7 @@ webhook test), and the integration tests. Goal: `./mvnw clean test` green.
 - **Dead-config cleanup**: drop unused polling knobs (`monobank.scheduler-delay`,
   `MonobankProperties.schedulerDelay`) and unused `ClientInfoFailEvent`.
 
-## Phase 3 — Complete the webhook (push), in Micronaut
+## Phase 3 — Complete the webhook (push), in Micronaut ✅ DONE (commit 54cb062)
 
 1. **Registration client** — add to the Micronaut `MonobankClient`: `@Post("/personal/webhook")`
    with header `X-Token` and a `SetWebhookRequest { webHookUrl }` body.
@@ -136,7 +136,7 @@ webhook test), and the integration tests. Goal: `./mvnw clean test` green.
    it via the private compose network (`http://bot:7070`). Nothing published to the host = zero
    inbound exposure.
 
-## Phase 4 — Dockerize properly (single compose, no swarm)
+## Phase 4 — Dockerize properly (single compose, no swarm) ✅ DONE (commit 2d62709)
 
 - **`Dockerfile`** → multi-stage: `maven:3.9-eclipse-temurin-21` (build) → `eclipse-temurin:21-jre`
   (runtime). Removes the hardcoded jar name + EOL `openjdk:11`; `docker compose up --build` is fully
@@ -152,7 +152,7 @@ webhook test), and the integration tests. Goal: `./mvnw clean test` green.
   `.gitignore`d); `TUNNEL_TOKEN` + `monobank.webhook-secret` in a gitignored **`.env`**.
 - Update **`README.md`** Deploy section: swarm → `docker compose up -d --build`.
 
-## Phase 5 — Cloudflare Tunnel + Monobank registration
+## Phase 5 — Cloudflare Tunnel + Monobank registration 🔜 NEXT (see REMAINING_PHASES.md for full step-by-step)
 
 1. Cloudflare Zero Trust → create named tunnel; add public hostname `budgetbot.<domain>` → service
    `http://bot:7070`; copy token into `.env`. DNS CNAME auto-created. (Token-only remote tunnel; no

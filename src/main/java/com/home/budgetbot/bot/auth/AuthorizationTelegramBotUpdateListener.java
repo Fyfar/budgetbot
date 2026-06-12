@@ -8,7 +8,6 @@ import io.micronaut.runtime.event.annotation.EventListener;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
-import org.telegram.abilitybots.api.util.AbilityUtils;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
@@ -27,8 +26,13 @@ public class AuthorizationTelegramBotUpdateListener {
 
     @EventListener
     public void onTelegramBotUpdate(Update update) {
-        User user = AbilityUtils.getUser(update);
-        Long chatId = AbilityUtils.getChatId(update);
+        User user = extractUser(update);
+        Long chatId = extractChatId(update);
+
+        if (user == null || chatId == null) {
+            log.warn("Cannot determine user or chatId from update {}, skipping", update.getUpdateId());
+            return;
+        }
 
         log.info("Receive update with id: {} from user: {}", update.getUpdateId(), user.getUserName());
 
@@ -43,5 +47,17 @@ public class AuthorizationTelegramBotUpdateListener {
         } else {
             log.warn("Unauthorized message from {} with chat id: {}", user.getUserName(), chatId);
         }
+    }
+
+    private static User extractUser(Update update) {
+        if (update.hasMessage()) return update.getMessage().getFrom();
+        if (update.hasCallbackQuery()) return update.getCallbackQuery().getFrom();
+        return null;
+    }
+
+    private static Long extractChatId(Update update) {
+        if (update.hasMessage()) return update.getMessage().getChatId();
+        if (update.hasCallbackQuery()) return update.getCallbackQuery().getMessage().getChatId();
+        return null;
     }
 }
