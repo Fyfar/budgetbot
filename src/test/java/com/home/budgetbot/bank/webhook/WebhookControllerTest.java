@@ -15,8 +15,10 @@ import com.home.budgetbot.bank.BalanceChangeEventListener;
 import com.home.budgetbot.bank.event.BalanceChangeEvent;
 import com.home.budgetbot.bank.repository.TestBalanceHistoryRepository;
 
+import java.time.Duration;
 import java.util.List;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -77,12 +79,12 @@ class WebhookControllerTest {
     }
 
     @Test
-    void postWithValidSecretAndPayloadReturns204() {
+    void postWithValidSecretAndPayloadReturns200() {
         HttpStatus status = client.toBlocking()
                 .exchange(HttpRequest.POST("/personal/balance/webhook/test-secret", VALID_PAYLOAD)
                         .contentType(MediaType.APPLICATION_JSON))
                 .status();
-        assertEquals(HttpStatus.NO_CONTENT, status);
+        assertEquals(HttpStatus.OK, status);
     }
 
     @Test
@@ -91,9 +93,11 @@ class WebhookControllerTest {
                 .exchange(HttpRequest.POST("/personal/balance/webhook/test-secret", VALID_PAYLOAD)
                         .contentType(MediaType.APPLICATION_JSON));
 
-        // A real transaction must be processed end-to-end, not swallowed as a ping.
+        // Processing is async — wait up to 2s for the event to land.
+        await().atMost(Duration.ofSeconds(2))
+                .until(() -> eventListener.getEventList().size() == 1);
+
         List<BalanceChangeEvent> events = eventListener.getEventList();
-        assertEquals(1, events.size());
         assertEquals(9500, events.get(0).getNewBalance()); // 950000 kopiykas -> 9500 UAH
     }
 
@@ -107,12 +111,12 @@ class WebhookControllerTest {
     }
 
     @Test
-    void postWithMissingStatementItemReturns204() {
+    void postWithMissingStatementItemReturns200() {
         // Monobank sends ping events without statementItem; must not return 500
         HttpStatus status = client.toBlocking()
                 .exchange(HttpRequest.POST("/personal/balance/webhook/test-secret", PING_PAYLOAD)
                         .contentType(MediaType.APPLICATION_JSON))
                 .status();
-        assertEquals(HttpStatus.NO_CONTENT, status);
+        assertEquals(HttpStatus.OK, status);
     }
 }

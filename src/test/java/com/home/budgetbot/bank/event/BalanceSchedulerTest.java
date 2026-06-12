@@ -53,12 +53,18 @@ class BalanceSchedulerTest {
     }
 
     @Test
-    void shouldSkipHoldTransactions() {
-        BalanceChangedEvent holdPayload = new BalanceChangedEvent("tx-hold", Instant.now(), "descr", BigInteger.ONE, BigInteger.valueOf(10022), true);
+    void shouldNotFireEventOnSettlementAfterHold() {
+        // hold=true arrives first → fires notification
+        BalanceChangedEvent holdPayload = new BalanceChangedEvent("tx-hold-settle", Instant.now(), "descr", BigInteger.ONE, BigInteger.valueOf(10022), true);
         BalanceChangedWebhookInput holdInput = new BalanceChangedWebhookInput("type", new AccountData(ACCOUNT_ID, holdPayload));
         balanceService.balanceChanged(holdInput);
 
-        assertEquals(0, eventListener.getEventList().size());
+        // hold=false (settlement) arrives with same transaction id → deduplicated
+        BalanceChangedEvent settlePayload = new BalanceChangedEvent("tx-hold-settle", Instant.now(), "descr", BigInteger.ONE, BigInteger.valueOf(10022), false);
+        BalanceChangedWebhookInput settleInput = new BalanceChangedWebhookInput("type", new AccountData(ACCOUNT_ID, settlePayload));
+        balanceService.balanceChanged(settleInput);
+
+        assertEquals(1, eventListener.getEventList().size());
     }
 
     @Test

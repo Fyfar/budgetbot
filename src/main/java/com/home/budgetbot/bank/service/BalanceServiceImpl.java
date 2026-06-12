@@ -34,18 +34,13 @@ public class BalanceServiceImpl implements BalanceService {
             return;
         }
 
-        if (input.getAccountData().getStatementItem().isHold()) {
-            log.debug("Skipping hold (pending) transaction, will process on settlement");
-            return;
-        }
-
+        String accountId = input.getAccountData().getAccount();
         String txId = input.getAccountData().getStatementItem().getId();
         if (txId != null && isDuplicate(txId)) {
-            log.info("Duplicate webhook for transaction {}, skipping", txId);
+            log.info("Duplicate webhook for transaction {} on account {}, skipping", txId, accountId);
             return;
         }
 
-        String accountId = input.getAccountData().getAccount();
         Optional<Integer> lastBalance = bankService.findLastBalance(accountId);
 
         int newBalance = balanceToUAH(input.getAccountData().getStatementItem().getBalance()).intValue();

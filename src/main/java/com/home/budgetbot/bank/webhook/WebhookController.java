@@ -10,10 +10,13 @@ import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
+import io.micronaut.scheduling.TaskExecutors;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
 
 @Slf4j
 @Controller("/personal/balance/webhook")
@@ -24,6 +27,10 @@ public class WebhookController {
 
     @Inject
     MonobankProperties monobankProperties;
+
+    @Inject
+    @Named(TaskExecutors.IO)
+    ExecutorService ioExecutor;
 
     // Monobank validates the URL with a GET before delivering events; must return 200.
     @Get("/{secret}")
@@ -40,8 +47,8 @@ public class WebhookController {
         if (!secretMatches(secret)) {
             return HttpResponse.notFound();
         }
-        balanceService.balanceChanged(input);
-        return HttpResponse.noContent();
+        ioExecutor.submit(() -> balanceService.balanceChanged(input));
+        return HttpResponse.ok();
     }
 
     private boolean secretMatches(String secret) {
