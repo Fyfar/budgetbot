@@ -33,3 +33,13 @@ build/
 .vscode/
 data
 .env
+
+### macOS ###
+.DS_Store
+
+### AI agent context (local only, not for repo) ###
+CLAUDE.md
+AGENTS.md
+
+### Completed planning docs ###
+docs/
