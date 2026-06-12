@@ -47,6 +47,7 @@ services:
       - ${HOME}/.docker/config.json:/config.json:ro
     environment:
       DOCKER_CONFIG: /config.json
+      DOCKER_API_VERSION: "1.40"
       WATCHTOWER_POLL_INTERVAL: 300
       WATCHTOWER_CLEANUP: "true"
       WATCHTOWER_LABEL_ENABLE: "true"
