@@ -8,14 +8,8 @@ datasources:
     username: admin
     password: admin
     driver-class-name: org.h2.Driver
+    schema-generate: CREATE
     dialect: H2
-
-jpa:
-  default:
-    properties:
-      hibernate:
-        hbm2ddl:
-          auto: update
 
 monobank:
   base-url: "http://localhost:8080"

@@ -1,27 +1,26 @@
 package com.home.budgetbot.bot.repository.entity.config;
 
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
+import io.micronaut.data.annotation.GeneratedValue;
+import io.micronaut.data.annotation.Id;
+import io.micronaut.data.annotation.MappedEntity;
+import io.micronaut.data.annotation.Relation;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 @Data
-@Entity
 @Accessors(chain = true)
-public class BudgetConfigEntity extends ConfigEntity {
+@MappedEntity("budget_config")
+public class BudgetConfigEntity {
+    @Id
+    @GeneratedValue
+    private Long id;
+
     private int salaryDay;
     private int budgetLimit;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "account_list")
-    private Collection<String> accountList = new ArrayList<>();
-
-    public BudgetConfigEntity() {
-        this.setType(ConfigType.BUDGET);
-    }
+    @Relation(value = Relation.Kind.ONE_TO_MANY, mappedBy = "budgetConfigId")
+    private List<AccountListEntry> accountList = new ArrayList<>();
 }

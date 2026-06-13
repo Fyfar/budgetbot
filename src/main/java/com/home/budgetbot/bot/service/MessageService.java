@@ -1,8 +1,10 @@
 package com.home.budgetbot.bot.service;
 
-import com.home.budgetbot.bot.repository.ConfigRepository;
+import com.home.budgetbot.bot.repository.SecurityConfigRepository;
 import com.home.budgetbot.bot.repository.UserRepository;
 import com.home.budgetbot.bot.repository.entity.UserEntity;
+import com.home.budgetbot.bot.repository.entity.config.AuthorizedUserEntry;
+import com.home.budgetbot.bot.repository.entity.config.SecurityConfigEntity;
 import com.home.budgetbot.bot.service.model.MessageModel;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -12,7 +14,6 @@ import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,19 +28,20 @@ public class MessageService {
     UserRepository userRepository;
 
     @Inject
-    ConfigRepository configRepository;
+    SecurityConfigRepository securityConfigRepository;
 
     public void notifyAll(MessageModel messageModel) {
-        Collection<Integer> authorizedUserList = configRepository.getSecurityConfig().getAuthorizedUserList();
+        List<SecurityConfigEntity> configs = securityConfigRepository.findAll();
+        if (configs.isEmpty()) throw new IllegalStateException("Security config not initialized");
+        List<AuthorizedUserEntry> authorizedUsers = configs.get(0).getAuthorizedUserList();
 
         List<String> chatList = userRepository.findAll().stream()
                 .map(UserEntity::getChatId)
-                .filter(target -> authorizedUserList.stream().anyMatch(id -> id.longValue() == target))
+                .filter(chatId -> authorizedUsers.stream().anyMatch(e -> e.getUserId() != null && e.getUserId().longValue() == chatId))
                 .map(String::valueOf)
                 .collect(Collectors.toList());
 
         messageModel.setChatList(chatList);
-
         sendMessage(messageModel);
     }
 

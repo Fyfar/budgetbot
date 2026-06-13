@@ -1,25 +1,23 @@
 package com.home.budgetbot.bot.repository.entity.config;
 
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
+import io.micronaut.data.annotation.GeneratedValue;
+import io.micronaut.data.annotation.Id;
+import io.micronaut.data.annotation.MappedEntity;
+import io.micronaut.data.annotation.Relation;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 @Data
-@Entity
 @Accessors(chain = true)
-public class SecurityConfigEntity extends ConfigEntity {
+@MappedEntity("security_config")
+public class SecurityConfigEntity {
+    @Id
+    @GeneratedValue
+    private Long id;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "authorized_user_list")
-    private Collection<Integer> authorizedUserList = new ArrayList<>();
-
-    public SecurityConfigEntity() {
-        this.setType(ConfigType.SECURITY);
-    }
+    @Relation(value = Relation.Kind.ONE_TO_MANY, mappedBy = "securityConfigId")
+    private List<AuthorizedUserEntry> authorizedUserList = new ArrayList<>();
 }
