@@ -21,6 +21,7 @@
         <micronaut.version>4.7.6</micronaut.version>
         <micronaut.runtime>netty</micronaut.runtime>
         <micronaut.aot.enabled>true</micronaut.aot.enabled>
+        <micronaut.aot.packageName>com.home.budgetbot</micronaut.aot.packageName>
         <exec.mainClass>com.home.budgetbot.Application</exec.mainClass>
 
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
