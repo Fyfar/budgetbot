@@ -11,7 +11,7 @@
 
     <groupId>com.home</groupId>
     <artifactId>budgetbot</artifactId>
-    <version>1.0.0</version>
+    <version>2.0.0</version>
     <name>budgetbot</name>
 
     <properties>
@@ -20,7 +20,7 @@
         <release.version>21</release.version>
         <micronaut.version>4.7.6</micronaut.version>
         <micronaut.runtime>netty</micronaut.runtime>
-        <micronaut.aot.enabled>false</micronaut.aot.enabled>
+        <micronaut.aot.enabled>true</micronaut.aot.enabled>
         <exec.mainClass>com.home.budgetbot.Application</exec.mainClass>
 
         <org.mapstruct.version>1.6.3</org.mapstruct.version>

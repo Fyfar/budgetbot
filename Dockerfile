@@ -2,15 +2,18 @@
 FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /app
 COPY pom.xml .
-RUN mvn -q -B dependency:go-offline
+RUN --mount=type=cache,target=/root/.m2,sharing=locked \
+    mvn -q -B dependency:go-offline
 COPY src ./src
-RUN mvn -q -B package -DskipTests
+RUN --mount=type=cache,target=/root/.m2,sharing=locked \
+    mvn -q -B package -DskipTests
 
 # ---- runtime ----
-FROM eclipse-temurin:21-jre
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-RUN apt-get update && apt-get install -y --no-install-recommends curl \
-    && rm -rf /var/lib/apt/lists/*
-COPY --from=build /app/target/budgetbot-1.0.0.jar /app/app.jar
+RUN apk add --no-cache curl
+# Warm JVM class-share archive to cut class-loading overhead at startup
+RUN java -Xshare:dump 2>/dev/null || true
+COPY --from=build /app/target/budgetbot-2.0.0.jar /app/app.jar
 EXPOSE 7070
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
