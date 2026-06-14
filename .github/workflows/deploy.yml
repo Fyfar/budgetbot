@@ -2,7 +2,12 @@ name: Build and Deploy
 
 on:
   push:
-    branches: [master]
+    branches: ['**']   # master -> prod tags; every other branch -> :test
+
+# Cancel an in-progress build when the same branch is pushed again (saves CI minutes).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build-and-push:
@@ -22,6 +27,7 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      # Tests run before the image is pushed, so a red branch never produces a :test image.
       - name: Run tests
         run: mvn clean test
 
@@ -35,13 +41,27 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # master           -> :latest + :sha-<commit>  (production; the tag Watchtower follows)
+      # any other branch -> :test                    (opt-in manually on the server)
+      - name: Compute image tags
+        id: meta
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/master" ]; then
+            {
+              echo "tags<<EOF"
+              echo "ghcr.io/fyfar/budgetbot:latest"
+              echo "ghcr.io/fyfar/budgetbot:sha-${{ github.sha }}"
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
+          else
+            echo "tags=ghcr.io/fyfar/budgetbot:test" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: |
-            ghcr.io/fyfar/budgetbot:latest
-            ghcr.io/fyfar/budgetbot:sha-${{ github.sha }}
+          tags: ${{ steps.meta.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

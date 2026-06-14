@@ -1,6 +1,6 @@
 package com.home.budgetbot.bot.service;
 
-import com.home.budgetbot.bank.repository.TestBalanceHistoryRepository;
+import com.home.budgetbot.bank.repository.BalanceHistoryRepository;
 import com.home.budgetbot.bank.service.BankService;
 import com.home.budgetbot.bot.service.model.BudgetChangeReportModel;
 import com.home.budgetbot.bot.service.model.BudgetConfigModel;
@@ -38,7 +38,7 @@ class BudgetServiceTest {
     BudgetService budgetService;
 
     @Inject
-    TestBalanceHistoryRepository historyRepository;
+    BalanceHistoryRepository historyRepository;
 
     @MockBean(ConfigService.class)
     ConfigService configServiceMock() {

@@ -1,6 +1,7 @@
 package com.home.budgetbot.bot.service;
 
-import com.home.budgetbot.bot.repository.ConfigRepository;
+import com.home.budgetbot.bot.repository.AuthorizedUserEntryRepository;
+import com.home.budgetbot.bot.repository.SecurityConfigRepository;
 import com.home.budgetbot.bot.repository.entity.config.SecurityConfigEntity;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
@@ -18,13 +19,15 @@ class SecurityServiceTest {
     SecurityService securityService;
 
     @Inject
-    ConfigRepository configRepository;
+    SecurityConfigRepository securityConfigRepository;
+
+    @Inject
+    AuthorizedUserEntryRepository authorizedUserEntryRepository;
 
     @BeforeEach
     void clearAuthorizedUsers() {
-        SecurityConfigEntity config = configRepository.getSecurityConfig();
-        config.getAuthorizedUserList().clear();
-        configRepository.update(config);
+        SecurityConfigEntity config = securityConfigRepository.findAll().iterator().next();
+        authorizedUserEntryRepository.deleteBySecurityConfigId(config.getId());
     }
 
     @Test
@@ -34,8 +37,8 @@ class SecurityServiceTest {
         boolean result = securityService.isAuthorizedUser(user);
 
         assertTrue(result);
-        SecurityConfigEntity config = configRepository.getSecurityConfig();
-        assertTrue(config.getAuthorizedUserList().contains(42));
+        SecurityConfigEntity config = securityConfigRepository.findAll().iterator().next();
+        assertTrue(config.getAuthorizedUserList().stream().anyMatch(e -> e.getUserId() == 42));
     }
 
     @Test
@@ -61,8 +64,8 @@ class SecurityServiceTest {
         securityService.addAuthorizedUser(7);
         securityService.addAuthorizedUser(7);
 
-        SecurityConfigEntity config = configRepository.getSecurityConfig();
-        long count = config.getAuthorizedUserList().stream().filter(id -> id == 7).count();
+        SecurityConfigEntity config = securityConfigRepository.findAll().iterator().next();
+        long count = config.getAuthorizedUserList().stream().filter(e -> e.getUserId() == 7).count();
         assertTrue(count <= 1, "Duplicate entries for userId 7: " + count);
     }
 

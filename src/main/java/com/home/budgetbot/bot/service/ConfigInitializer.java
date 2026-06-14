@@ -1,15 +1,17 @@
 package com.home.budgetbot.bot.service;
 
-import com.home.budgetbot.bot.repository.ConfigRepository;
+import com.home.budgetbot.bot.repository.AccountListEntryRepository;
+import com.home.budgetbot.bot.repository.BudgetConfigRepository;
+import com.home.budgetbot.bot.repository.SecurityConfigRepository;
+import com.home.budgetbot.bot.repository.entity.config.AccountListEntry;
 import com.home.budgetbot.bot.repository.entity.config.BudgetConfigEntity;
 import com.home.budgetbot.bot.repository.entity.config.SecurityConfigEntity;
 import io.micronaut.context.event.StartupEvent;
 import io.micronaut.runtime.event.annotation.EventListener;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.Arrays;
 
 /**
  * Seeds default configuration on application startup. Kept separate from
@@ -21,25 +23,29 @@ import java.util.Arrays;
 public class ConfigInitializer {
 
     @Inject
-    ConfigRepository configRepository;
+    BudgetConfigRepository budgetConfigRepository;
+
+    @Inject
+    AccountListEntryRepository accountListEntryRepository;
+
+    @Inject
+    SecurityConfigRepository securityConfigRepository;
 
     @EventListener
+    @Transactional
     public void onStartup(StartupEvent event) {
-        if (configRepository.getBudgetConfig() == null) {
+        if (budgetConfigRepository.count() == 0) {
             log.info("Budget config not found. Init default values.");
-
             BudgetConfigEntity config = new BudgetConfigEntity()
                     .setSalaryDay(5)
-                    .setAccountList(Arrays.asList("remove_me_example_id"))
                     .setBudgetLimit(900);
-
-            configRepository.update(config);
+            BudgetConfigEntity saved = budgetConfigRepository.save(config);
+            accountListEntryRepository.save(new AccountListEntry(saved.getId(), "remove_me_example_id"));
         }
 
-        if (configRepository.getSecurityConfig() == null) {
+        if (securityConfigRepository.count() == 0) {
             log.info("Security config not found. Init default values.");
-
-            configRepository.update(new SecurityConfigEntity());
+            securityConfigRepository.save(new SecurityConfigEntity());
         }
     }
 }

@@ -64,10 +64,10 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Data: Hibernate JPA + Hikari + H2 -->
+        <!-- Data: JDBC + Hikari + H2 -->
         <dependency>
             <groupId>io.micronaut.data</groupId>
-            <artifactId>micronaut-data-hibernate-jpa</artifactId>
+            <artifactId>micronaut-data-jdbc</artifactId>
         </dependency>
         <dependency>
             <groupId>io.micronaut.sql</groupId>
@@ -85,11 +85,44 @@
             <artifactId>micronaut-management</artifactId>
         </dependency>
 
-        <!-- Telegram bot (framework-agnostic) -->
+        <!--
+          Telegram bot (framework-agnostic). We only use long-polling
+          (TelegramLongPollingBot), which talks to Telegram over Apache HttpClient.
+          telegrambots also bundles a Jersey + Grizzly webhook HTTP server
+          (~19 MB: jersey, grizzly, hk2, javassist) for TelegramWebhookBot — never
+          used here, since the Monobank webhook runs on Micronaut's own Netty server.
+          Excluding it removes ~2/3 of the fat JAR.
+        -->
         <dependency>
             <groupId>org.telegram</groupId>
             <artifactId>telegrambots</artifactId>
             <version>${telegrambots.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.glassfish.jersey.inject</groupId>
+                    <artifactId>jersey-hk2</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.glassfish.jersey.media</groupId>
+                    <artifactId>jersey-media-json-jackson</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.glassfish.jersey.containers</groupId>
+                    <artifactId>jersey-container-grizzly2-http</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.glassfish.jersey.core</groupId>
+                    <artifactId>jersey-server</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.jaxrs</groupId>
+                    <artifactId>jackson-jaxrs-json-provider</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.module</groupId>
+                    <artifactId>jackson-module-jaxb-annotations</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- MapStruct -->
@@ -111,17 +144,6 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <scope>runtime</scope>
-        </dependency>
-
-        <!--
-          telegrambots pulls the legacy javax-based jackson-module-jaxb-annotations.
-          Hibernate's findAndRegisterModules() loads it, so the javax.xml.bind annotation
-          API must be present on the classpath to initialize it.
-        -->
-        <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <version>2.3.1</version>
         </dependency>
 
         <!-- Test -->
@@ -207,3 +229,4 @@
         </plugins>
     </build>
 </project>
+

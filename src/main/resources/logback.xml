@@ -6,6 +6,9 @@
         </encoder>
     </appender>
 
+    <!-- Telegram long-polling fires SocketTimeoutException every ~50s when idle — this is expected reconnect behaviour, not an error -->
+    <logger name="org.telegram.telegrambots.updatesreceivers.DefaultBotSession" level="WARN"/>
+
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
     </root>

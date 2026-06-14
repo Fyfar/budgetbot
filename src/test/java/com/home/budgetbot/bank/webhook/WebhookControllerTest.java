@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import com.home.budgetbot.bank.BalanceChangeEventListener;
 import com.home.budgetbot.bank.event.BalanceChangeEvent;
-import com.home.budgetbot.bank.repository.TestBalanceHistoryRepository;
+import com.home.budgetbot.bank.repository.BalanceHistoryRepository;
 
 import java.time.Duration;
 import java.util.List;
@@ -55,7 +55,7 @@ class WebhookControllerTest {
     BalanceChangeEventListener eventListener;
 
     @Inject
-    TestBalanceHistoryRepository historyRepository;
+    BalanceHistoryRepository historyRepository;
 
     @BeforeEach
     void setUp() {

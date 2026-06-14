@@ -1,13 +1,14 @@
 package com.home.budgetbot.bot.service;
 
-import com.home.budgetbot.bot.repository.ConfigRepository;
+import com.home.budgetbot.bot.repository.AuthorizedUserEntryRepository;
+import com.home.budgetbot.bot.repository.SecurityConfigRepository;
+import com.home.budgetbot.bot.repository.entity.config.AuthorizedUserEntry;
 import com.home.budgetbot.bot.repository.entity.config.SecurityConfigEntity;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.meta.api.objects.User;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,10 +17,13 @@ import java.util.Optional;
 public class SecurityService {
 
     @Inject
-    ConfigRepository configRepository;
+    SecurityConfigRepository securityConfigRepository;
+
+    @Inject
+    AuthorizedUserEntryRepository authorizedUserEntryRepository;
 
     public synchronized boolean isAuthorizedUser(User user) {
-        SecurityConfigEntity securityConfig = configRepository.getSecurityConfig();
+        SecurityConfigEntity securityConfig = getConfig();
 
         if (isAdminNotExist(securityConfig)) {
             log.warn("Admin not exist, save {} as admin", user.getUserName());
@@ -27,18 +31,22 @@ public class SecurityService {
             return true;
         }
 
-        List<Integer> userIdList = new ArrayList<>(securityConfig.getAuthorizedUserList());
-
-        return userIdList.contains(user.getId().intValue());
+        return securityConfig.getAuthorizedUserList().stream()
+                .anyMatch(e -> e.getUserId() != null && e.getUserId() == user.getId().intValue());
     }
 
     public synchronized void addAuthorizedUser(Integer userId) {
-        SecurityConfigEntity securityConfig = configRepository.getSecurityConfig();
+        SecurityConfigEntity securityConfig = getConfig();
 
-        if (!securityConfig.getAuthorizedUserList().contains(userId)) {
-            securityConfig.getAuthorizedUserList().add(userId);
-            configRepository.update(securityConfig);
+        if (!authorizedUserEntryRepository.existsBySecurityConfigIdAndUserId(securityConfig.getId(), userId)) {
+            authorizedUserEntryRepository.save(new AuthorizedUserEntry(securityConfig.getId(), userId));
         }
+    }
+
+    private SecurityConfigEntity getConfig() {
+        List<SecurityConfigEntity> all = securityConfigRepository.findAll();
+        if (all.isEmpty()) throw new IllegalStateException("Security config not initialized");
+        return all.get(0);
     }
 
     private boolean isAdminNotExist(SecurityConfigEntity securityConfig) {

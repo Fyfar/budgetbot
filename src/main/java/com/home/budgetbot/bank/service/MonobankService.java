@@ -8,7 +8,6 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 import java.time.OffsetDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -27,13 +26,8 @@ public class MonobankService implements BankService {
 
     @Override
     public Optional<Integer> findLastBalance(String accountId) {
-        BalanceHistoryEntity history = repository.findTop1ByAccountIdOrderByTimeDesc(accountId);
-
-        if (history == null) {
-            return Optional.empty();
-        }
-
-        return Optional.of(history.getBalance());
+        return repository.findFirstByAccountIdOrderByTimeDesc(accountId)
+                .map(BalanceHistoryEntity::getBalance);
     }
 
     @Override
@@ -57,17 +51,15 @@ public class MonobankService implements BankService {
     @Override
     public Optional<Integer> findInitialBalanceByDay(String accountId, OffsetDateTime dateTime) {
         OffsetDateTime dayStart = getDayStart(dateTime);
-        Optional<Integer> balance = repository.findLastBalanceBeforeTime(accountId, dayStart).map(BalanceHistoryEntity::getBalance);
+        Optional<Integer> balance = repository.findFirstByAccountIdAndTimeLessThanOrderByTimeDesc(accountId, dayStart)
+                .map(BalanceHistoryEntity::getBalance);
 
         if (balance.isPresent()) {
             return balance;
         }
 
-        return repository.findByAccountIdAndTimeBetween(accountId, getDayStart(dateTime), getDayEnd(dateTime))
-                .stream()
-                .sorted(Comparator.comparing(BalanceHistoryEntity::getTime))
-                .map(BalanceHistoryEntity::getBalance)
-                .findFirst();
+        return repository.findFirstByAccountIdAndTimeBetweenOrderByTimeAsc(accountId, getDayStart(dateTime), getDayEnd(dateTime))
+                .map(BalanceHistoryEntity::getBalance);
     }
 
     @Override
@@ -79,7 +71,7 @@ public class MonobankService implements BankService {
             return Optional.empty();
         }
 
-        Integer firstDayBalance = repository.findLastBalanceBeforeTime(accountId, getDayStart(dateTime))
+        Integer firstDayBalance = repository.findFirstByAccountIdAndTimeLessThanOrderByTimeDesc(accountId, getDayStart(dateTime))
                 .map(BalanceHistoryEntity::getBalance)
                 .orElse(balanceHistory.get(0));
 

@@ -10,19 +10,12 @@ micronaut:
 
 datasources:
   default:
-    url: jdbc:h2:file:./data/database
+    url: "jdbc:h2:file:./data/database;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM 'classpath:db/schema.sql'"
     driver-class-name: org.h2.Driver
     username: admin
     password: admin
+    schema-generate: NONE
     dialect: H2
-
-jpa:
-  default:
-    properties:
-      hibernate:
-        hbm2ddl:
-          auto: update
-        dialect: org.hibernate.dialect.H2Dialect
 
 monobank:
   base-url: https://api.monobank.ua
