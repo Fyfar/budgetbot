@@ -8,7 +8,7 @@ import com.home.budgetbot.bank.BalanceChangeEventListener;
 import com.home.budgetbot.bank.model.BalanceChangedEvent;
 import com.home.budgetbot.bank.model.BalanceChangedWebhookInput;
 import com.home.budgetbot.bank.model.BalanceChangedWebhookInput.AccountData;
-import com.home.budgetbot.bank.repository.TestBalanceHistoryRepository;
+import com.home.budgetbot.bank.repository.BalanceHistoryRepository;
 import com.home.budgetbot.bank.service.BalanceService;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
@@ -27,7 +27,7 @@ class BalanceSchedulerTest {
     BalanceService balanceService;
 
     @Inject
-    TestBalanceHistoryRepository historyRepository;
+    BalanceHistoryRepository historyRepository;
 
     @Inject
     BalanceChangeEventListener eventListener;

@@ -37,3 +37,19 @@ CREATE TABLE IF NOT EXISTS security_user (
     security_config_id BIGINT NOT NULL,
     user_id            INTEGER NOT NULL
 );
+
+
+-- Indexes for the app's access patterns.
+-- balance_history is always filtered by account_id and ordered by time
+-- (findTop1..., findLastBalanceBeforeTime, findByAccountIdAndTimeBetween).
+-- NOTE: keep this index ASCENDING. A DESC index on a TIMESTAMP WITH TIME ZONE
+-- column triggers an H2 range-scan bug that returns wrong rows for
+-- "WHERE time < ? ORDER BY time DESC" queries. H2 scans an ASC index backwards
+-- for DESC ordering anyway, so there is no performance loss.
+CREATE INDEX IF NOT EXISTS idx_balance_history_account_time
+    ON balance_history (account_id, time);
+-- Foreign-key columns used by the config delete/join paths.
+CREATE INDEX IF NOT EXISTS idx_budget_account_config
+    ON budget_account (budget_config_id);
+CREATE INDEX IF NOT EXISTS idx_security_user_config
+    ON security_user (security_config_id);

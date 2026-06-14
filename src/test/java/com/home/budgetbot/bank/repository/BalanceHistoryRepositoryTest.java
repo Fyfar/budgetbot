@@ -15,7 +15,7 @@ class BalanceHistoryRepositoryTest {
     public static final String ACCOUNT_ID = "TEST";
 
     @Inject
-    TestBalanceHistoryRepository historyRepository;
+    BalanceHistoryRepository historyRepository;
 
     @BeforeEach
     void setUp() {
@@ -44,7 +44,7 @@ class BalanceHistoryRepositoryTest {
             historyRepository.save(entity);
         }
 
-        BalanceHistoryEntity historyEntity = historyRepository.findTop1ByAccountIdOrderByTimeDesc(ACCOUNT_ID);
+        BalanceHistoryEntity historyEntity = historyRepository.findFirstByAccountIdOrderByTimeDesc(ACCOUNT_ID).get();
 
         assertEquals(19, historyEntity.getBalance());
     }
@@ -64,7 +64,7 @@ class BalanceHistoryRepositoryTest {
             }
         }
 
-        BalanceHistoryEntity balanceHistory = historyRepository.findLastBalanceBeforeTime(ACCOUNT_ID, time.minusDays(2).withHour(0).withMinute(0).withSecond(0)).get();
+        BalanceHistoryEntity balanceHistory = historyRepository.findFirstByAccountIdAndTimeLessThanOrderByTimeDesc(ACCOUNT_ID, time.minusDays(2).withHour(0).withMinute(0).withSecond(0)).get();
 
         assertEquals(19800, balanceHistory.getBalance());
     }

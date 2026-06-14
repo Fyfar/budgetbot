@@ -4,11 +4,13 @@ micronaut:
 
 datasources:
   default:
-    url: "jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1"
+    # Tests run the SAME curated schema as production (db/schema.sql) so they
+    # validate the real schema, not a lossy DDL projection generated from entities.
+    url: "jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM 'classpath:db/schema.sql'"
     username: admin
     password: admin
     driver-class-name: org.h2.Driver
-    schema-generate: CREATE
+    schema-generate: NONE
     dialect: H2
 
 monobank:

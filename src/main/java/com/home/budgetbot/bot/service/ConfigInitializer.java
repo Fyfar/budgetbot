@@ -10,6 +10,7 @@ import io.micronaut.context.event.StartupEvent;
 import io.micronaut.runtime.event.annotation.EventListener;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -31,6 +32,7 @@ public class ConfigInitializer {
     SecurityConfigRepository securityConfigRepository;
 
     @EventListener
+    @Transactional
     public void onStartup(StartupEvent event) {
         if (budgetConfigRepository.count() == 0) {
             log.info("Budget config not found. Init default values.");
